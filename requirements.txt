@@ -9,3 +9,4 @@ lmfit
 panel
 fire
 altair
+param==1.13.0
