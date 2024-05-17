@@ -6,6 +6,10 @@ from fraggler.ladders.ladders import LADDERS
 from fraggler.utils.baseline_removal import baseline_arPLS
 
 
+class LadderNotFoundError(Exception):
+    pass
+
+
 class FsaFile:
     def __init__(
         self,
@@ -39,8 +43,10 @@ class FsaFile:
         self.file_name = self.file.parts[-1]
 
         # Extract data from the sequencing file
-        self.fsa = SeqIO.read(file, "abi").annotations["abif_raw"]
+        if ladder not in LADDERS.keys():
+            raise LadderNotFoundError(f"'{ladder}' is not a valid ladder")
         self.ladder = ladder
+        self.fsa = SeqIO.read(file, "abi").annotations["abif_raw"]
         self.trace_channel = trace_channel
         self.normalize = normalize
 
@@ -48,7 +54,7 @@ class FsaFile:
         self.ref_sizes = LADDERS[ladder]["sizes"]
         self.ref_count = self.ref_sizes.size
 
-        # Use default values if necessary
+        # Use default values if nothing is given
         self.size_standard_channel = size_standard_channel or LADDERS[ladder]["channel"]
         self.min_interpeak_distance = (
             min_interpeak_distance or LADDERS[ladder]["distance"]

@@ -100,6 +100,7 @@ class FitLadderModel:
             self.n_knots += 1
             self.fit_model()
 
+        # reaches only if there is a problem
         raise ModelFittingError(
             "There is a problem with the fitting of the model to the ladder"
         )

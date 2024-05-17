@@ -14,7 +14,6 @@ from ..utils.fsa_file import FsaFile
 from ..plotting.plot_channels import plot_fsa_data
 from ..plotting.plot_peaks import PlotPeaks
 from ..plotting.plot_ladder import PlotLadder
-from ..plotting.plot_peak_area import PlotPeakArea
 
 
 pn.extension("tabulator")
@@ -64,7 +63,7 @@ def make_header(name: str, date: str) -> pn.pane.Markdown:
 def generate_peak_report(fraggler: FragglerPeak) -> pn.layout.base.Column:
     ### ----- Raw Data ----- ###
     channel_header = header(
-        text=f"## Plot of channels",
+        text="## Plot of channels",
         bg_color="#04c273",
         height=80,
         textalign="left",
@@ -79,7 +78,7 @@ def generate_peak_report(fraggler: FragglerPeak) -> pn.layout.base.Column:
 
     ### ----- Peaks ----- ###
     peaks_header = header(
-        text=f"## Plot of Peaks",
+        text="## Plot of Peaks",
         bg_color="#04c273",
         height=80,
         textalign="left",
@@ -97,7 +96,7 @@ def generate_peak_report(fraggler: FragglerPeak) -> pn.layout.base.Column:
 
     ### ----- Ladder Information ----- ###
     ladder_header = header(
-        text=f"## Information about the ladder",
+        text="## Information about the ladder",
         bg_color="#04c273",
         height=80,
         textalign="left",
@@ -123,14 +122,11 @@ def generate_peak_report(fraggler: FragglerPeak) -> pn.layout.base.Column:
 
     ### ----- Peaks dataframe ----- ###
     dataframe_header = header(
-        text=f"## Peaks Table",
-        bg_color="#04c273",
-        height=80,
-        textalign="left",
+        text="## Peaks Table", bg_color="#04c273", height=80, textalign="left"
     )
     # Create dataframe
     df = fraggler.peaks.peak_information.assign(file_name=fraggler.fsa.file_name)[
-        ["file_name", "basepairs", "peaks"]
+        ["file_name", "basepairs", "peaks", "assay_name"]
     ].rename(columns={"peaks": "peak_height"})
     # DataFrame Tabulator
     peaks_df_tab = pn.widgets.Tabulator(
@@ -175,7 +171,7 @@ def generate_area_report(
 
     ### ----- Raw Data ----- ###
     channel_header = header(
-        text=f"## Plot of channels",
+        text="## Plot of channels",
         bg_color="#04c273",
         height=80,
         textalign="left",
@@ -190,7 +186,7 @@ def generate_area_report(
 
     ### ----- Peaks ----- ###
     peaks_header = header(
-        text=f"## Plot of Peaks",
+        text="## Plot of Peaks",
         bg_color="#04c273",
         height=80,
         textalign="left",
@@ -208,7 +204,7 @@ def generate_area_report(
 
     ### ----- Ladder Information ----- ###
     ladder_header = header(
-        text=f"## Information about the ladder",
+        text="## Information about the ladder",
         bg_color="#04c273",
         height=80,
         textalign="left",
@@ -234,16 +230,11 @@ def generate_area_report(
 
     ### ----- Areas Information ----- ###
     areas_header = header(
-        text=f"## Peak Areas",
-        bg_color="#04c273",
-        height=80,
-        textalign="left",
+        text="## Peak Areas", bg_color="#04c273", height=80, textalign="left"
     )
     areas_tab = pn.Tabs()
-    area_plots = PlotPeakArea(fraggler.areas)
-    for assay in fraggler.areas:
-        plot = area_plots.plot_areas(peak_model, assay)
-        name = f"Assay {assay + 1}"
+    for i, plot in enumerate(fraggler.areas.area_plots):
+        name = f"Assay {i + 1}"
         plot_pane = pn.pane.Matplotlib(plot, name=name)
         areas_tab.append(plot_pane)
 
@@ -252,13 +243,13 @@ def generate_area_report(
 
     ### ----- Peaks DataFrame ----- ###
     dataframe_header = header(
-        text=f"## Peaks Table",
-        bg_color="#04c273",
-        height=80,
-        textalign="left",
+        text="## Peaks Table", bg_color="#04c273", height=80, textalign="left"
     )
-    # Create dataframe
-    df = fraggler.areas.assays_dataframe(peak_model)
+
+    if not hasattr(fraggler.areas, "final_df"):
+        df = fraggler.areas.assays_dataframe(peak_model)
+    else:
+        df = fraggler.areas.final_df
 
     # DataFrame Tabulator
     peaks_df_tab = pn.widgets.Tabulator(
@@ -299,7 +290,7 @@ def generate_area_report(
 
 def generate_no_peaks_report(fsa: FsaFile):
     channel_header = header(
-        text=f"## Plot of channels",
+        text="## Plot of channels",
         bg_color="#04c273",
         height=80,
         textalign="left",
