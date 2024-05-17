@@ -2,6 +2,7 @@ import logging
 import re
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from lmfit.models import VoigtModel, GaussianModel, LorentzianModel
 from scipy.signal import find_peaks, peak_widths
 from ..utils.peak_finder import PeakFinder
@@ -15,10 +16,9 @@ class PeakAreaDeMultiplexIterator:
     def __next__(self):
         if self.current >= self.number_of_assays:
             raise StopIteration
-        else:
-            result = self.current
-            self.current += 1
-            return result
+        result = self.current
+        self.current += 1
+        return result
 
 
 class PeakAreaDeMultiplex:
@@ -34,6 +34,7 @@ class PeakAreaDeMultiplex:
         self.file_name = self.peaks.file_name
         self.peaks_index = self.peaks.peaks_index
         self.found_peaks = self.peaks.found_peaks
+        self.area_plots = []
 
         self.find_peak_widths()
         # divade peaks based on their assay they belonging
@@ -140,11 +141,10 @@ class PeakAreaDeMultiplex:
         """
         areas = np.array([x["amplitude"] for x in self.fit_params])
 
-        right_by_left = True
-        if self.cutoff is not None:
-            if pd.concat(self.fit_df).basepairs.mean() < self.cutoff:
-                right_by_left = False
-
+        right_by_left = (
+            self.cutoff is None
+            or pd.concat(self.fit_df).basepairs.mean() >= self.cutoff
+        )
         # if there only is 1 peak, return 0
         if len(areas) == 1:
             self.quotient = 0
@@ -160,11 +160,12 @@ class PeakAreaDeMultiplex:
             self.quotient = areas[1] / areas[0]
             return
 
-        # TODO change this to the proper assay
         # return the last peak divided by the mean of the peaks to the left of it
         self.quotient = areas[-1] / areas[:-1].mean()
 
-    def peak_position_area_dataframe(self, assay_number: int) -> pd.DataFrame:
+    def peak_position_area_dataframe(
+        self, assay_number: int, name: str
+    ) -> pd.DataFrame:
         """
         Returns a DataFrame of each peak and its properties
         """
@@ -188,6 +189,7 @@ class PeakAreaDeMultiplex:
                 )
                 .drop_duplicates("peak_name")
                 .assign(file_name=self.file_name)
+                .assign(assay_name=name)
             )
             dataframes.append(df)
 
@@ -197,21 +199,64 @@ class PeakAreaDeMultiplex:
             assay_number=assay_number + 1,
         )
 
+    def plot_areas(self, peak_finding_model: str):
+        fig_areas, axs = plt.subplots(
+            1, len(self.fit_df), sharey=True, figsize=(20, 10)
+        )
+        # if there is only one peak
+        if len(self.fit_df) == 1:
+            axs.plot(self.fit_df[0].basepairs, self.fit_df[0].peaks, "o")
+            axs.plot(self.fit_df[0].basepairs, self.fit_df[0].fitted)
+            axs.set_title(f"Peak 1 area: {self.fit_params[0]['amplitude']: .1f}")
+            axs.grid()
+        # if more than one peak
+        else:
+            for i, ax in enumerate(axs):
+                ax.plot(
+                    self.fit_df[i].basepairs,
+                    self.fit_df[i].peaks,
+                    "o",
+                )
+                ax.plot(self.fit_df[i].basepairs, self.fit_df[i].fitted)
+                ax.set_title(
+                    f"Peak {i + 1} area: {self.fit_params[i]['amplitude']: .1f}"
+                )
+                ax.grid()
+
+        fig_areas.suptitle(f"Quotient: {self.quotient: .2f}")
+        fig_areas.legend(["Raw data", "Model"])
+        fig_areas.supxlabel("basepairs")
+        fig_areas.supylabel("intensity")
+        plt.close()
+
+        return fig_areas
+
     def fit_assay_peaks(
         self,
         peak_finding_model: str,
         assay_number: int,
+        name: str,
     ) -> None:
         """
         Runs fit_lmfit_model, calculate_quotient and peak_position_area_dataframe
         """
         self.fit_lmfit_model(peak_finding_model, assay_number)
         self.calculate_quotient()
-        self.peak_position_area_dataframe(assay_number)
+        self.peak_position_area_dataframe(assay_number, name)
+        # area plots
+        area_plot = self.plot_areas(peak_finding_model)
+        self.area_plots.append(area_plot)
         return self.assay_peak_area_df
 
     def assays_dataframe(self, peak_finding_model: str = "gauss"):
         dfs = []
         for i in self:
-            dfs.append(self.fit_assay_peaks(peak_finding_model, i))
-        return pd.concat(dfs, ignore_index=True)
+            if self.peaks.custom_peaks is not None:
+                name = self.peaks.custom_peaks.name.unique()[i]
+            else:
+                name = ""
+            dfs.append(self.fit_assay_peaks(peak_finding_model, i, name))
+        df = pd.concat(dfs, ignore_index=True)
+        # initialize attribute self.final_df
+        self.final_df = df
+        return df

@@ -6,8 +6,9 @@ import logging
 from colorama import Fore as f, init
 import matplotlib
 import warnings
+import platform
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.filterwarnings("ignore")
 
 import fraggler
 
@@ -15,7 +16,8 @@ import fraggler
 init(autoreset=True)
 
 # for windows user
-matplotlib.use("agg")
+if platform.system() == "Windows":
+    matplotlib.use("agg")
 
 ASCII_ART = f"""{f.RED}
             █████▒██▀███   ▄▄▄        ▄████   ▄████  ██▓    ▓█████  ██▀███
@@ -28,7 +30,6 @@ ASCII_ART = f"""{f.RED}
            ░ ░     ░░   ░   ░   ▒   ░ ░   ░ ░ ░   ░   ░ ░      ░     ░░   ░
                     ░           ░  ░      ░       ░     ░  ░   ░  ░   ░
 """
-print(ASCII_ART)
 
 
 def save_df_format(
@@ -67,6 +68,8 @@ def area_report(
 ) -> None:
 
     print(ASCII_ART)
+    if custom_peaks:
+        peak_height = 0
 
     # Logging
     fraggler.setup_logging(out_folder)
@@ -132,6 +135,7 @@ def area_report(
             continue
 
         # generate report and peak table
+
         peak_dfs.append(fraggler_object.areas.assays_dataframe(peak_model))
         report = fraggler.generate_area_report(fraggler_object, peak_model)
         out_name = out_folder / f"{file.stem}_fraggler_area.html"
@@ -165,6 +169,9 @@ def peak_report(
     custom_peaks: str = None,
     out_format: str = "excel",
 ) -> None:
+
+    if custom_peaks:
+        peak_height = 0
 
     print(ASCII_ART)
 

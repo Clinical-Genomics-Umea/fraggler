@@ -1,9 +1,12 @@
-# Fraggler
+![Build Status](https://github.com/willros/fraggler/actions/workflows/pdoc.yaml/badge.svg)
+[![!pypi](https://img.shields.io/pypi/v/fraggler?color=cyan)](https://pypi.org/project/fraggler/)
+[![Download Status](https://static.pepy.tech/badge/fraggler)](https://pypi.python.org/pypi/fraggler/)
+
 ![logo](examples/logo.png)
 
 ## Description
 Fraggler is for fragment analysis in Python!
-Fraggler is a Python package that provides functionality for analyzing and generating reports for fsa files. It offers both a Python API and a command-line tool for ease of use.
+Fraggler is a Python package that provides functionality for analyzing and generating reports for fsa files. It offers both a Python API and a command-line tool.
 
 ----------------
 
@@ -16,33 +19,58 @@ Fraggler is a Python package that provides functionality for analyzing and gener
 
 ## Install
 
-Via pip:
 ```bash
 pip install fraggler
 ```
 
-## Usage
+### Dependencies
+Fraggler depends on:
+- pandas
+- numpy
+- scikit-learn
+- networkx
+- lmfit
+- scipy
+- biopython
+- panel
+- fire
+- colorama
+- altair
 
-To get an overview how the library can be used in a python environment, please look at `tutorial.ipynb`.
+## Python API
+
+To get an overview how the library can be used in a python environment, please look at the [tutorial.ipynb](demo/tutorial.ipynb).
 
 
-## CLI Tool
+## CLI
 ### `fraggler area` and `fraggler peak`
 
 #### Usage
 To generate peak area reports and a peak table for all input files, use the `fraggler area` or `fraggler peak` command followed by the required positional arguments and any optional flags.
 
-- If not specified, fraggler finds peaks agnostic in the `fsa file`. To specifiy custom assays with certain peaks and intervals, the user can add a .csv file to the `--custom_peaks` argument. The csv file MUST have the following shape:
+- If not specified, fraggler finds peaks agnostic in the `fsa file`. To specifiy custom assays with certain peaks and intervals, the user can add a .csv file to the `--custom_peaks` argument. The csv file **MUST** have the following shape:
 
-| name | start | stop | amount | min_ratio |
-|---|---|---|---|
-| prt1 | 140 | 150 | 2 | 0.2
+| name | start | stop | amount | min_ratio | which | peak_distance |
+|------|-------|------|--------|-----------|-------|---------------|
+| prt1 | 140   | 150  | 2      | 0.2       | FIRST | 5             |
 
-If `amount` or `min_ratio` are left emtpy, `fraggler` will take all peaks inside the interval. If amount is not empty, fraggler will include the top `N` peaks in the interval, based on height. If `min_ratio` is set, only peaks with the a ratio of the `min_ratio` of the highest peak is included, *e.g.* if `min_ratio == .02`, only peaks with a height of 20 is included, if the highest peak is 100 units.
-
-```console
-fraggler peak IN_PATH OUT_FOLDER --ladder LIZ <flags>
+##### Example how how a file could look:
+```txt 
+name,start,stop,amount,min_ratio,which,peak_distance
+prt1,135,155,2,0.2,FIRST,
+prt3,190,205,,0.2,FIRST,
+prt2,222,236,2,0.2,FIRST,5
+prt4,262,290,5,,,
 ```
+
+- `name`: Name of the assay
+- `start`: Start of the assay in basepairs
+- `stop`: Stop of the assay in basepairs
+- `amount`: Optional. Amount of peaks in assay. If left empty every peak in the interval is included. 
+- `min_ratio`: Optional. Only peaks with the a ratio of the `min_ratio` of the highest peak is included, *e.g.* if `min_ratio == .02`, only peaks with a height of 20 is included, if the highest peak is 100 units
+- `which`: *LARGEST | FIRST*. Can be left empty. Which peak should be included if there are more peaks than the `amount`. if *FIRST* is set, then the two first peaks are chosen. If *LARGEST* are set, then the two largests peaks in the area are chosen. Defaults to *LARGEST*
+- `peak_distance`: Optional. Distance between peaks must be ***under*** this value.
+
 
 #### Positional Arguments
 The following positional arguments are required:
@@ -66,13 +94,14 @@ The following flags can be used with the `fraggler peak` or `fraggler area` comm
 
 #### Typical usage
 ```console
-fraggler peak IN_FOLDER OUT_FOLDER ORANGE --min_ratio=0.2 
+fraggler area IN_FOLDER OUT_FOLDER LIZ --min_ratio=0.2 
 ```
 
+#### Documentation
+Click [here](https://willros.github.io/fraggler/fraggler.html) to get full documentation of API.
 
+## Output
+One example of the report generated from `fraggler area` can be seen here: [](examples/multiplex_fraggler_area.html)
 
-
-
-
-
-
+## Contributions
+Please check out [How to contribute](CONTRIBUTION.md)
