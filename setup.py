@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setuptools.setup(
     name="fraggler",
-    version="2.0.0",
+    version="2.0.1",
     description="Fragment Analysis package in python!",
     url="https://github.com/willros/fraggler",
     author="William Rosenbaum and Pär Larsson",
