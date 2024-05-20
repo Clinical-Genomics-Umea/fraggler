@@ -1,4 +1,4 @@
-![Build Status](https://github.com/willros/fraggler/actions/workflows/pdoc.yaml/badge.svg)
+![Build Status](https://github.com/clinical-genomics-umea/fraggler/actions/workflows/pdoc.yaml/badge.svg)
 [![!pypi](https://img.shields.io/pypi/v/fraggler?color=cyan)](https://pypi.org/project/fraggler/)
 [![Download Status](https://static.pepy.tech/badge/fraggler)](https://pypi.python.org/pypi/fraggler/)
 
@@ -98,10 +98,10 @@ fraggler area IN_FOLDER OUT_FOLDER LIZ --min_ratio=0.2
 ```
 
 #### Documentation
-Click [here](https://willros.github.io/fraggler/fraggler.html) to get full documentation of API.
+Click [here](https://clinical-genomics-umea.github.io/fraggler/fraggler.html) to get full documentation of API.
 
 ## Output
-One example of the report generated from `fraggler area` can be seen here: [](examples/multiplex_fraggler_area.html)
+One example of the report generated from `fraggler area` can be seen here: [Example report](examples/multiplex_fraggler_area.html)
 
 ## Contributions
 Please check out [How to contribute](CONTRIBUTION.md)
