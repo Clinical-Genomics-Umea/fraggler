@@ -1,6 +1,35 @@
 # TODO: add rere.py as testing
 # Make a script and print the results in the terminal and capture it!
 
+
+class bcolors:
+    OKBLUE = "\033[94m"
+    OKCYAN = "\033[96m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    UNDERLINE = "\033[4m"
+
+
+def print_green(text):
+    print(f"{bcolors.OKGREEN}[INFO]: {text}{bcolors.ENDC}")
+
+
+def print_warning(text):
+    print(f"{bcolors.WARNING}{bcolors.UNDERLINE}[WARNING]: {text}{bcolors.ENDC}")
+
+
+def print_fail(text):
+    print(f"{bcolors.FAIL}{bcolors.UNDERLINE}[ERROR]: {text}{bcolors.ENDC}")
+
+
+def print_blue(text):
+    print(f"{bcolors.OKBLUE}[SUMMARIZE]: {text}{bcolors.ENDC}")
+
+
+print_green(f"Starting fraggler, importing libraries...")
+
 import numpy as np
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
@@ -26,7 +55,6 @@ import argparse
 import warnings
 import platform
 import panel as pn
-
 
 
 warnings.filterwarnings("ignore")
@@ -112,32 +140,6 @@ def folder_exists(folder):
     if Path(folder).exists():
         print_fail(f"{folder} already exist!")
         sys.exit(1)
-
-
-class bcolors:
-    OKBLUE = "\033[94m"
-    OKCYAN = "\033[96m"
-    OKGREEN = "\033[92m"
-    WARNING = "\033[93m"
-    FAIL = "\033[91m"
-    ENDC = "\033[0m"
-    UNDERLINE = "\033[4m"
-
-
-def print_green(text):
-    print(f"{bcolors.OKGREEN}[INFO]: {text}{bcolors.ENDC}")
-
-
-def print_warning(text):
-    print(f"{bcolors.WARNING}{bcolors.UNDERLINE}[WARNING]: {text}{bcolors.ENDC}")
-
-
-def print_fail(text):
-    print(f"{bcolors.FAIL}{bcolors.UNDERLINE}[ERROR]: {text}{bcolors.ENDC}")
-
-
-def print_blue(text):
-    print(f"{bcolors.OKBLUE}[SUMMARIZE]: {text}{bcolors.ENDC}")
 
 
 ASCII_ART = f"""{bcolors.OKBLUE}
@@ -1036,12 +1038,13 @@ def parse_fsa(
     except:
         print_fail(f"Cannot parse {fsa}")
         sys.exit(1)
-        
-        
+
+
 ### REPORT ###
 pn.extension("tabulator")
 pn.extension("vega", sizing_mode="stretch_width", template="fast")
 pn.widgets.Tabulator.theme = "modern"
+
 
 def header(
     text: str,
@@ -1163,10 +1166,9 @@ def generate_area_report(fsa):
         text="## Peaks Table", bg_color="#04c273", height=80, textalign="left"
     )
 
-    df = (
-        fsa.identified_sample_data_peaks
-        [["basepairs", "assay", "peak_name", "model", "r_value", "quotient"]]
-    )
+    df = fsa.identified_sample_data_peaks[
+        ["basepairs", "assay", "peak_name", "model", "r_value", "quotient"]
+    ]
 
     # DataFrame Tabulator
     peaks_df_tab = pn.widgets.Tabulator(
@@ -1204,6 +1206,40 @@ def generate_area_report(fsa):
     return report
 
 
+def generate_no_peaks_report(fsa):
+    channel_header = header(
+        text="## Plot of channels",
+        bg_color="#04c273",
+        height=80,
+        textalign="left",
+    )
+    # PLOT
+    channel_tab = pn.Tabs()
+    for plot, name in plot_fsa_data(fsa):
+        pane = pn.pane.Vega(plot.interactive(), sizing_mode="stretch_both", name=name)
+        channel_tab.append(pane)
+    channels_section = pn.Column(channel_header, channel_tab)
+
+    ### CREATE REPORT ###
+    file_name = fsa.file_name
+    date = fsa.fsa["RUND1"]
+    head = header(
+        "# No peaks could be generated. Please look at the raw data.", height=100
+    )
+
+    all_tabs = pn.Tabs(
+        ("Channels", channels_section),
+        tabs_location="left",
+    )
+    report = pn.Column(
+        head,
+        pn.layout.Divider(),
+        all_tabs,
+    )
+
+    return report
+
+
 def main(
     command,
     sub_command,
@@ -1220,6 +1256,7 @@ def main(
     search_peaks_start,
     peak_area_model,
 ):
+    FAILED_FILES = []
     start_time = datetime.now()
     print_green(f"Running fraggler {sub_command}!")
 
@@ -1241,7 +1278,7 @@ def main(
             min_distance_between_peaks=min_distance_between_peaks,
             min_size_standard_height=min_size_standard_height,
         )
-        
+
         print_green(f"Using size standard channel: {fsa.size_standard_channel}")
         write_log(LOG_FILE, f"Size standard channel: {fsa.size_standard_channel}")
 
@@ -1251,11 +1288,22 @@ def main(
         )
         fsa = generate_combinations(fsa)
         fsa = calculate_best_combination_of_size_standard_peaks(fsa)
-        
+
         if fsa.best_size_standard_combinations.shape[0] == 0:
+            write_log(
+                LOG_FILE, 
+                "No combinations of the size standard could be made", 
+                "Aborting"
+            )
             print_fail("No combinations of the size standard could be made")
-            sys.exit(1)
-            
+            print_warning(f"Generating a report of the raw data, please have a look...")
+            no_peaks_report = generate_no_peaks_report(fsa)
+            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
+            print_warning(f"Continuing to the next file...")
+            FAILED_FILES.append(fsa.file_name)
+            continue
+            #sys.exit(1)
+
         fsa = fit_size_standard_to_ladder(fsa)
 
         if sub_command == "area":
@@ -1287,17 +1335,38 @@ def main(
             fsa = calculate_quotients(fsa)
             fsa = update_identified_sample_data_peaks(fsa)
 
-            columns = ["basepairs", "assay", "peak_name", "model", "r_value", "quotient"]
-            (
-                fsa.identified_sample_data_peaks
-                [["basepairs", "assay", "peak_name", "model", "r_value", "quotient"]]
-                .to_csv(f"{output}/fraggler_peaks.csv", index=False)
+            print_green(
+                f"Found {fsa.identified_sample_data_peaks.assay.nunique()} assays"
             )
-            # TODO create report
+            print_green(f"Found {fsa.identified_sample_data_peaks.shape[0]} peaks")
+            write_log(
+                LOG_FILE,
+                f"Found {fsa.identified_sample_data_peaks.assay.nunique()} assays",
+                f"Found {fsa.identified_sample_data_peaks.shape[0]} peaks",
+            )
+
+            # save the table of peaks
+            (
+                fsa.identified_sample_data_peaks[
+                    ["basepairs", "assay", "peak_name", "model", "r_value", "quotient"]
+                ].to_csv(f"{output}/fraggler_peaks.csv", index=False)
+            )
+
+            # create report
+            print_green("Creating report...")
+            report = generate_area_report(fsa)
+            report.save(f"{output}/{fsa.file_name}_fraggler_report.html")
+
+            print_green(f"Fraggler done for {fsa.file_name}")
+            write_log(LOG_FILE, "")
 
         elif sub_command == "peak":
             pass
-
+        
+        print_green("Fraggler done!")
+        print_warning("Following file failed:")
+        for file in FAILED_FILES:
+            print_warning(f"   {file}")
 
 
 if __name__ == "__main__":
