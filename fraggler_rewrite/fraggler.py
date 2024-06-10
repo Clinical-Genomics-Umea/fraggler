@@ -298,6 +298,9 @@ def return_maxium_allowed_distance_between_size_standard_peaks(fsa, multiplier=2
 
 
 def generate_combinations(fsa):
+    """
+    depth-first search
+    """
     a = fsa.size_standard_peaks
     length = fsa.n_ladder_peaks
     distance = fsa.maxium_allowed_distance_between_size_standard_peaks
@@ -1085,6 +1088,113 @@ def make_header(name: str, date: str) -> pn.pane.Markdown:
     )
 
 
+def generate_peak_report(fsa):
+    ### ----- Raw Data ----- ###
+    channel_header = header(
+        text="## Plot of channels",
+        bg_color="#04c273",
+        height=80,
+        textalign="left",
+    )
+    # PLOT
+    channel_tab = pn.Tabs()
+    for plot, name in plot_fsa_data(fsa):
+        pane = pn.pane.Vega(plot.interactive(), sizing_mode="stretch_both", name=name)
+        channel_tab.append(pane)
+
+    channels_section = pn.Column(channel_header, channel_tab)
+
+    ### ----- Peaks ----- ###
+    peaks_header = header(
+        text="## Plot of Peaks",
+        bg_color="#04c273",
+        height=80,
+        textalign="left",
+    )
+
+    # PLOT
+    peaks_plot = plot_all_found_peaks(fsa)
+    peaks_pane = pn.pane.Matplotlib(peaks_plot, name="Peaks")
+
+    # Section
+    peaks_tab = pn.Tabs(
+        peaks_pane,
+    )
+    peaks_section = pn.Column(peaks_header, peaks_tab)
+
+    ### ----- Ladder Information ----- ###
+    ladder_header = header(
+        text="## Information about the ladder",
+        bg_color="#04c273",
+        height=80,
+        textalign="left",
+    )
+    # Ladder peak plot
+    ladder_plot = plot_size_standard_peaks(fsa)
+    ladder_peak_plot = pn.pane.Matplotlib(
+        ladder_plot,
+        name="Ladder Peak Plot",
+    )
+    # Ladder Correlation
+    model_fit = plot_model_fit(fsa)
+    ladder_correlation_plot = pn.pane.Matplotlib(
+        model_fit,
+        name="Ladder Correlation Plot",
+    )
+
+    # Section
+    ladder_tab = pn.Tabs(
+        ladder_peak_plot,
+        ladder_correlation_plot,
+    )
+    ladder_section = pn.Column(ladder_header, ladder_tab)
+
+    ### ----- Peaks dataframe ----- ###
+    dataframe_header = header(
+        text="## Peaks Table", bg_color="#04c273", height=80, textalign="left"
+    )
+    # Create dataframe
+    df = (
+        fsa.identified_sample_data_peaks
+        .assign(file_name=fsa.file_name)
+        [["basepairs", "assay", "peak_name", "file_name"]]
+    )
+    # DataFrame Tabulator
+    peaks_df_tab = pn.widgets.Tabulator(
+        df,
+        layout="fit_columns",
+        pagination="local",
+        page_size=15,
+        show_index=False,
+        name="Peaks Table",
+    )
+
+    # Section
+    dataframe_tab = pn.Tabs(peaks_df_tab)
+    dataframe_section = pn.Column(dataframe_header, dataframe_tab)
+
+    ### CREATE REPORT ###
+
+    file_name = fsa.file_name
+    date = fsa.fsa["RUND1"]
+    head = make_header(file_name, date)
+
+    all_tabs = pn.Tabs(
+        ("Channels", channels_section),
+        ("Peaks", peaks_section),
+        ("Ladder", ladder_section),
+        ("Peaks Table", dataframe_section),
+        tabs_location="left",
+    )
+    report = pn.Column(
+        head,
+        pn.layout.Divider(),
+        all_tabs,
+    )
+
+    return report
+
+
 def generate_area_report(fsa):
 
     ### ----- Raw Data ----- ###
@@ -1257,6 +1367,7 @@ def main(
     peak_area_model,
 ):
     FAILED_FILES = []
+    PEAK_TABLES = []
     start_time = datetime.now()
     print_green(f"Running fraggler {sub_command}!")
 
@@ -1306,44 +1417,62 @@ def main(
 
         fsa = fit_size_standard_to_ladder(fsa)
 
-        if sub_command == "area":
-            if custom_peaks:
-                print_green(f"Using custom peaks")
-                # test if custom peaks are ok
-                custom_peaks = read_valid_csv(custom_peaks)
-                custom_peaks_are_overlapping(custom_peaks)
-                custom_peaks_has_columns(custom_peaks)
-                fsa = find_peaks_customized(
-                    fsa,
-                    custom_peaks,
-                    peak_height_sample_data=peak_height_sample_data,
-                    search_peaks_start=search_peaks_start,
-                )
-            else:  # find peak agnostic
-                print_green(f"Finding peaks agnostic")
-                fsa = find_peaks_agnostic(
-                    fsa,
-                    peak_height_sample_data=peak_height_sample_data,
-                    min_ratio=min_ratio_to_allow_peak,
-                    distance_between_assays=distance_between_assays,
-                    search_peaks_start=search_peaks_start,
-                )
+        if custom_peaks:
+            print_green(f"Using custom peaks")
+            # test if custom peaks are ok
+            custom_peaks = read_valid_csv(custom_peaks)
+            custom_peaks_are_overlapping(custom_peaks)
+            custom_peaks_has_columns(custom_peaks)
+            fsa = find_peaks_customized(
+                fsa,
+                custom_peaks,
+                peak_height_sample_data=peak_height_sample_data,
+                search_peaks_start=search_peaks_start,
+            )
+        else:  # find peak agnostic
+            print_green(f"Finding peaks agnostic")
+            fsa = find_peaks_agnostic(
+                fsa,
+                peak_height_sample_data=peak_height_sample_data,
+                min_ratio=min_ratio_to_allow_peak,
+                distance_between_assays=distance_between_assays,
+                search_peaks_start=search_peaks_start,
+            )
+            
+        print_green(
+            f"Found {fsa.identified_sample_data_peaks.assay.nunique()} assays"
+        )
+        print_green(f"Found {fsa.identified_sample_data_peaks.shape[0]} peaks")
+        write_log(
+            LOG_FILE,
+            f"Found {fsa.identified_sample_data_peaks.assay.nunique()} assays",
+            f"Found {fsa.identified_sample_data_peaks.shape[0]} peaks",
+        )
+            
+        if sub_command == "peak":
+            # save csv
+            peak_table = (
+                fsa.identified_sample_data_peaks
+                .assign(file_name=fsa.file_name)
+            )
+            PEAK_TABLES.append(peak_table)
+            
+            # create  peak report
+            print_green("Creating peak report...")
+            report = generate_peak_report(fsa)
+            report.save(f"{output}/{fsa.file_name}_fraggler_report.html")
 
+            print_green(f"Fraggler done for {fsa.file_name}")
+            write_log(LOG_FILE, "")
+            
+            
+        if sub_command == "area":
             fsa = find_peak_widths(fsa)
             fsa = find_peaks_with_padding(fsa)
             fsa = fit_lmfit_model_to_area(fsa, peak_area_model)
             fsa = calculate_quotients(fsa)
             fsa = update_identified_sample_data_peaks(fsa)
 
-            print_green(
-                f"Found {fsa.identified_sample_data_peaks.assay.nunique()} assays"
-            )
-            print_green(f"Found {fsa.identified_sample_data_peaks.shape[0]} peaks")
-            write_log(
-                LOG_FILE,
-                f"Found {fsa.identified_sample_data_peaks.assay.nunique()} assays",
-                f"Found {fsa.identified_sample_data_peaks.shape[0]} peaks",
-            )
 
             # save the table of peaks
             (
@@ -1353,18 +1482,26 @@ def main(
             )
 
             # create report
-            print_green("Creating report...")
+            print_green("Creating area report...")
             report = generate_area_report(fsa)
             report.save(f"{output}/{fsa.file_name}_fraggler_report.html")
 
             print_green(f"Fraggler done for {fsa.file_name}")
             write_log(LOG_FILE, "")
-
-        elif sub_command == "peak":
-            pass
+            
         
-        print_green("Fraggler done!")
-        print_warning("Following file failed:")
+    # save csv file in peak report
+    if sub_command == "peak":
+        (
+            pd.concat(PEAK_TABLES)
+            [["basepairs", "assay", "peak_name", "file_name"]]
+            .to_csv(f"{output}/{fsa.file_name}_fraggler_peaks.csv", index=False)
+        )
+        
+    print_green("Fraggler done!")
+    
+    if len(FAILED_FILES) > 0:
+        print_warning("Following files failed:")
         for file in FAILED_FILES:
             print_warning(f"   {file}")
 
