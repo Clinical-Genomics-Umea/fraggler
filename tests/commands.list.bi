@@ -1,4 +1,4 @@
-:i count 7
+:i count 6
 :b shell 20
 python3 test_plot.py
 :i returncode 0
@@ -690,13 +690,6 @@ python3 test_area.py
 390      2294  0.200087  gauss    0.992  2.351421  
 480      2294  0.466434  gauss    0.992  2.351421  
 570      2294  1.000000  gauss    0.992  2.351421  
-
-:b stderr 0
-
-:b shell 0
-
-:i returncode 0
-:b stdout 0
 
 :b stderr 0
 
