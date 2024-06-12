@@ -1,6 +1,10 @@
 from fraggler2 import fraggler
+import pandas as pd
 
-file = "../demo/multiplex.fsa"
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+
+file = "../../demo/multiplex.fsa"
 fsa_file = fraggler.get_files(file)[0]
 
 
@@ -25,7 +29,12 @@ fsa = fraggler.find_peaks_agnostic(
     distance_between_assays=15,
     search_peaks_start=115,
 )
+fsa = fraggler.find_peak_widths(fsa)
+fsa = fraggler.find_peaks_with_padding(fsa)
+fsa = fraggler.fit_lmfit_model_to_area(fsa, "gauss")
+fsa = fraggler.calculate_quotients(fsa)
+fsa = fraggler.update_identified_sample_data_peaks(fsa)
 
 
+print(fsa.fitted_area_peaks)
 print(fsa.identified_sample_data_peaks)
-print(fsa.best_size_standard)

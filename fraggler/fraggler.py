@@ -1,7 +1,3 @@
-# TODO: add rere.py as testing
-# Make a script and print the results in the terminal and capture it!
-
-
 class bcolors:
     OKBLUE = "\033[94m"
     OKCYAN = "\033[96m"
@@ -48,13 +44,13 @@ import pandas as pd
 import altair as alt
 from lmfit.models import VoigtModel, GaussianModel, LorentzianModel
 import re
-import pandstat
 import sys
 from datetime import datetime
 import argparse
 import warnings
 import platform
 import panel as pn
+import pandas_flavor as pf
 
 
 warnings.filterwarnings("ignore")
@@ -63,9 +59,21 @@ if platform.system() == "Windows":
     matplotlib.use("agg")
 
 
-from ladders import LADDERS
+from .ladders import LADDERS
 
 ### UTILITY FUNCTIONS ###
+@pf.register_dataframe_method
+def pivot_wider(
+    df_: pd.DataFrame, index: list, names_from: list, values_from: list
+) -> pd.DataFrame:
+    df = df_.pivot(index=index, columns=names_from, values=values_from).reset_index()
+    names = [[str(y) for y in x] for x in df.columns]
+    names = ["_".join(x).strip("_") for x in names]
+    df.columns = names
+
+    return df
+
+
 def baseline_arPLS(y, ratio=0.99, lam=100, niter=1000, full_output=False):
     """
     Taken from:
@@ -172,8 +180,8 @@ class FsaFile:
         self.file_name = self.file.parts[-1]
 
         if ladder not in LADDERS.keys():
-            raise LadderNotFoundError(f"'{ladder}' is not a valid ladder")
-            exit(1)
+            print_fail(f"'{ladder}' is not a valid ladder")
+            sys.exit(1)
         self.ladder = ladder
         self.fsa = SeqIO.read(file, "abi").annotations["abif_raw"]
         self.sample_channel = sample_channel
@@ -349,17 +357,17 @@ def calculate_best_combination_of_size_standard_peaks(fsa):
     return fsa
 
 
-def fit_size_standard_to_ladder(fsa) -> tuple:
+def fit_size_standard_to_ladder(fsa):
     """
     Returns the FsaFile with updated model and datafram with sample data
     and fitted baisepairs.
     Increase the knots until every basepair is unique.
     """
     best_combination = fsa.best_size_standard
-    n_knots = 4
+    n_knots = 3
     for _ in range(20):
         model = make_pipeline(
-            SplineTransformer(degree=3, n_knots=n_knots, extrapolation="continue"),
+            SplineTransformer(degree=2, n_knots=n_knots, extrapolation="continue"),
             LinearRegression(fit_intercept=True),
         )
 
@@ -387,22 +395,24 @@ def fit_size_standard_to_ladder(fsa) -> tuple:
         else:
             n_knots += 1
 
+        # if no model could be fit
+        fsa.fitted_to_model = False
+        return fsa
+
 
 ### PLOTTING ###
 def plot_areas(fsa):
     def plot_helper(identified_peaks, df):
-        fig_areas, axs = plt.subplots(
-            1, len(identified_peaks), sharey=True, figsize=(20, 10)
-        )
+        peaks = [df.loc[lambda x: x.peak_name == p] for p in df.peak_name.unique()]
+        fig_areas, axs = plt.subplots(1, len(peaks), sharey=True, figsize=(20, 10))
         # if there is only one peak
-        if len(identified_peaks) == 1:
+        if len(peaks) == 1:
             axs.plot(df.basepairs, df.peaks, "o")
             axs.plot(df.basepairs, df.fitted)
             axs.set_title(f"Peak 1 area: {df['amplitude'].iloc[0]: .1f}")
             axs.grid()
         # if more than one peak
         else:
-            peaks = [df.loc[lambda x: x.peak_name == p] for p in df.peak_name.unique()]
             for i, ax in enumerate(axs):
                 ax.plot(
                     peaks[i].basepairs,
@@ -601,9 +611,8 @@ def find_peaks_agnostic(
     )
 
     if identified_peaks.shape[0] == 0:
-        # TODO: REWRITE
-        print("No peaks could be found")
-        exit(1)
+        fsa.found_peaks = "error"
+        return fsa
 
     fsa.sample_data_peaks_raw = peaks_dataframe
     fsa.identified_sample_data_peaks = identified_peaks
@@ -621,9 +630,8 @@ def read_custom_peaks(custom_peaks):
         else None
     )
     if not isinstance(custom_peaks, pd.DataFrame):
-        # TODO: CHANGE
-        print("No custom peaks could be read")
-        exit(1)
+        print_fail("No custom peaks could be read")
+        sys.exit(1)
 
     return custom_peaks
 
@@ -730,7 +738,7 @@ def find_peaks_customized(
                         .drop(columns=["distance"])
                     )
             else:
-                print("[ERROR]: column `which` must be `FIRST` or `LARGEST`")
+                print_fail("Column `which` must be `FIRST` or `LARGEST`")
                 exit(1)
 
         customized_peaks.append(df)
@@ -742,9 +750,8 @@ def find_peaks_customized(
     )
 
     if identified_peaks.shape[0] == 0:
-        # TODO: REWRITE
-        print("No peaks could be found")
-        exit(1)
+        fsa.found_peaks = "error"
+        return fsa
 
     fsa.sample_data_peaks_raw = peaks_dataframe
     fsa.identified_sample_data_peaks = identified_peaks
@@ -986,7 +993,7 @@ def cli():
     args = parser.parse_args()
 
     print(ASCII_ART)
-    command = "\nfraggler \n" + "".join(f"{k}: {v}\n" for k, v in vars(args).items())
+    command = "fraggler \n" + "".join(f"{k}: {v}\n" for k, v in vars(args).items())
     print_green(command)
 
     main(
@@ -1039,8 +1046,7 @@ def parse_fsa(
         )
         return fsa
     except:
-        print_fail(f"Cannot parse {fsa}")
-        sys.exit(1)
+        return None
 
 
 ### REPORT ###
@@ -1154,11 +1160,9 @@ def generate_peak_report(fsa):
         text="## Peaks Table", bg_color="#04c273", height=80, textalign="left"
     )
     # Create dataframe
-    df = (
-        fsa.identified_sample_data_peaks
-        .assign(file_name=fsa.file_name)
-        [["basepairs", "assay", "peak_name", "file_name"]]
-    )
+    df = fsa.identified_sample_data_peaks.assign(file_name=fsa.file_name)[
+        ["basepairs", "assay", "peak_name", "file_name"]
+    ]
     # DataFrame Tabulator
     peaks_df_tab = pn.widgets.Tabulator(
         df,
@@ -1366,6 +1370,7 @@ def main(
     search_peaks_start,
     peak_area_model,
 ):
+    today = datetime.today().strftime("%Y-%m-%d %H:%M:%S")
     FAILED_FILES = []
     PEAK_TABLES = []
     start_time = datetime.now()
@@ -1375,14 +1380,21 @@ def main(
     make_dir(output)
 
     LOG_FILE = f"{output}/fraggler.log"
-    write_log(LOG_FILE, "Command:", command)
+    write_log(
+        LOG_FILE,
+        f"Date: {datetime.today().strftime('%Y-%m-%d %H:%M:%S')}",
+        "",
+        "Command:",
+        command,
+        "---------------------------",
+    )
 
     fsa_files = get_files(fsa)
 
     for fsa in fsa_files:
-        print_green(f"Running fraggler on {fsa}")
+        print_green(f"   Running fraggler on {fsa}")
         write_log(LOG_FILE, f"Parsing {fsa}:")
-        fsa = parse_fsa(
+        fsa_file = parse_fsa(
             fsa,
             ladder,
             sample_channel=sample_channel,
@@ -1390,32 +1402,98 @@ def main(
             min_size_standard_height=min_size_standard_height,
         )
 
-        print_green(f"Using size standard channel: {fsa.size_standard_channel}")
-        write_log(LOG_FILE, f"Size standard channel: {fsa.size_standard_channel}")
-
-        fsa = find_size_standard_peaks(fsa)
-        fsa = return_maxium_allowed_distance_between_size_standard_peaks(
-            fsa, multiplier=2
-        )
-        fsa = generate_combinations(fsa)
-        fsa = calculate_best_combination_of_size_standard_peaks(fsa)
-
-        if fsa.best_size_standard_combinations.shape[0] == 0:
+        if fsa_file == None:
+            print_fail(f"Could not parse fsa {fsa}")
             write_log(
-                LOG_FILE, 
-                "No combinations of the size standard could be made", 
-                "Aborting"
+                LOG_FILE,
+                "Could not parse fsa",
+                "Aborting",
+                "",
             )
-            print_fail("No combinations of the size standard could be made")
+            print_warning(f"Continuing to the next file...")
+            print("")
+            FAILED_FILES.append(fsa)
+            continue
+
+        print_green(f"Using size standard channel: {fsa_file.size_standard_channel}")
+        write_log(LOG_FILE, f"Size standard channel: {fsa_file.size_standard_channel}")
+
+        fsa = find_size_standard_peaks(fsa_file)
+
+        # if to few size standard peaks are found
+        if len(fsa.size_standard_peaks) < len(fsa.ladder_steps):
+            write_log(
+                LOG_FILE,
+                "To few size standard peaks found",
+                "Aborting",
+                "",
+            )
+            print_warning("To few size standard peaks found")
+            print_warning(f"Ladder peaks number: {len(fsa.ladder_steps)}")
+            print_warning(f"Found size standard peaks: {len(fsa.size_standard_peaks)}")
+            print_warning("Try changing the --min_size_standard_height")
+            print_warning(f"Current value: {min_size_standard_height}")
+            print_warning(f"...Or change ladder. Current ladder {ladder}")
             print_warning(f"Generating a report of the raw data, please have a look...")
             no_peaks_report = generate_no_peaks_report(fsa)
             no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
             print_warning(f"Continuing to the next file...")
+            print("")
             FAILED_FILES.append(fsa.file_name)
             continue
-            #sys.exit(1)
 
+        fsa = return_maxium_allowed_distance_between_size_standard_peaks(
+            fsa, multiplier=2
+        )
+
+        # try to find a good number for allowed diffs between peaks
+        for _ in range(20):
+            fsa = generate_combinations(fsa)
+            if fsa.best_size_standard_combinations.shape[0] > 0:
+                break
+
+            fsa.maxium_allowed_distance_between_size_standard_peaks += 10
+
+        if fsa.best_size_standard_combinations.shape[0] == 0:
+            write_log(
+                LOG_FILE,
+                "No combinations of the size standard could be made",
+                "Aborting",
+                "",
+            )
+            print_warning("No combinations of the size standard could be made")
+            print_warning("Try changing the --min_size_standard_height")
+            print_warning(f"Current value: {min_size_standard_height}")
+            print_warning(f"...Or change ladder. Current ladder {ladder}")
+            print_warning(f"Generating a report of the raw data, please have a look...")
+            no_peaks_report = generate_no_peaks_report(fsa)
+            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
+            print_warning(f"Continuing to the next file...")
+            print("")
+            FAILED_FILES.append(fsa.file_name)
+            continue
+
+        fsa = calculate_best_combination_of_size_standard_peaks(fsa)
         fsa = fit_size_standard_to_ladder(fsa)
+
+        # if no model could be fitted
+        if not fsa.fitted_to_model:
+            print_warning(f"No ladder model could be fitted to {fsa.file_name}...")
+            print_warning("Try changing the --min_size_standard_height")
+            print_warning(f"Current value: {min_size_standard_height}")
+            write_log(
+                LOG_FILE,
+                "No ladder model could be fitted",
+                "Aborting",
+                "",
+            )
+            print_warning(f"Generating a report of the raw data, please have a look...")
+            no_peaks_report = generate_no_peaks_report(fsa)
+            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
+            print_warning(f"Continuing to the next file...")
+            print("")
+            FAILED_FILES.append(fsa.file_name)
+            continue
 
         if custom_peaks:
             print_green(f"Using custom peaks")
@@ -1438,48 +1516,82 @@ def main(
                 distance_between_assays=distance_between_assays,
                 search_peaks_start=search_peaks_start,
             )
-            
-        print_green(
-            f"Found {fsa.identified_sample_data_peaks.assay.nunique()} assays"
-        )
-        print_green(f"Found {fsa.identified_sample_data_peaks.shape[0]} peaks")
+
+        # if no found peaks
+        if fsa.found_peaks == "error":
+            print_warning(f"No peaks could be detected for {fsa.file_name}...")
+            print_warning("Try changing the --peak_height_sample_data")
+            print_warning(f"Current value: {peak_height_sample_data}")
+            write_log(
+                LOG_FILE,
+                "No peaks in sampel data channel could be identified",
+                "Aborting",
+                "",
+            )
+            print_warning(f"Generating a report of the raw data, please have a look...")
+            no_peaks_report = generate_no_peaks_report(fsa)
+            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
+            print_warning(f"Continuing to the next file...")
+            print("")
+            FAILED_FILES.append(fsa.file_name)
+            continue
+
+        print_blue(f"Found {fsa.identified_sample_data_peaks.assay.nunique()} assays")
+        print_blue(f"Found {fsa.identified_sample_data_peaks.shape[0]} peaks")
         write_log(
             LOG_FILE,
             f"Found {fsa.identified_sample_data_peaks.assay.nunique()} assays",
             f"Found {fsa.identified_sample_data_peaks.shape[0]} peaks",
         )
-            
+
         if sub_command == "peak":
             # save csv
-            peak_table = (
-                fsa.identified_sample_data_peaks
-                .assign(file_name=fsa.file_name)
-            )
+            peak_table = fsa.identified_sample_data_peaks.assign(
+                file_name=fsa.file_name
+            )[["basepairs", "assay", "peak_name", "file_name"]]
+
             PEAK_TABLES.append(peak_table)
-            
-            # create  peak report
+
+            # create peak report
             print_green("Creating peak report...")
             report = generate_peak_report(fsa)
             report.save(f"{output}/{fsa.file_name}_fraggler_report.html")
 
             print_green(f"Fraggler done for {fsa.file_name}")
+            print("")
             write_log(LOG_FILE, "")
-            
-            
+
         if sub_command == "area":
             fsa = find_peak_widths(fsa)
             fsa = find_peaks_with_padding(fsa)
             fsa = fit_lmfit_model_to_area(fsa, peak_area_model)
+
+            if fsa.fitted_area_peaks.shape[0] == 0:
+                print_warning(f"No areas could be fiitted for {fsa.file_name}...")
+                write_log(
+                    LOG_FILE,
+                    "No areas could be fitted",
+                    "Aborting",
+                    "",
+                )
+                print_warning(
+                    f"Generating a report of the raw data, please have a look..."
+                )
+                no_peaks_report = generate_no_peaks_report(fsa)
+                no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
+                print_warning(f"Continuing to the next file...")
+                print("")
+                FAILED_FILES.append(fsa.file_name)
+                continue
+
             fsa = calculate_quotients(fsa)
             fsa = update_identified_sample_data_peaks(fsa)
 
-
-            # save the table of peaks
-            (
-                fsa.identified_sample_data_peaks[
-                    ["basepairs", "assay", "peak_name", "model", "r_value", "quotient"]
-                ].to_csv(f"{output}/fraggler_peaks.csv", index=False)
-            )
+            # add peaks table to list and concat later
+            peak_table = fsa.identified_sample_data_peaks[
+                ["basepairs", "assay", "peak_name", "model", "r_value", "quotient"]
+            ].assign(file_name=fsa.file_name)
+            PEAK_TABLES.append(peak_table)
 
             # create report
             print_green("Creating area report...")
@@ -1487,23 +1599,30 @@ def main(
             report.save(f"{output}/{fsa.file_name}_fraggler_report.html")
 
             print_green(f"Fraggler done for {fsa.file_name}")
+            print("")
             write_log(LOG_FILE, "")
-            
-        
+
     # save csv file in peak report
-    if sub_command == "peak":
-        (
-            pd.concat(PEAK_TABLES)
-            [["basepairs", "assay", "peak_name", "file_name"]]
-            .to_csv(f"{output}/{fsa.file_name}_fraggler_peaks.csv", index=False)
-        )
-        
+    if len(PEAK_TABLES) > 0:
+        pd.concat(PEAK_TABLES).to_csv(f"{output}/fraggler_peaks.csv", index=False)
+
     print_green("Fraggler done!")
-    
+
     if len(FAILED_FILES) > 0:
         print_warning("Following files failed:")
+        write_log(LOG_FILE, "Following files failed:")
+        write_log(LOG_FILE, *FAILED_FILES)
         for file in FAILED_FILES:
             print_warning(f"   {file}")
+
+    end_time = datetime.now()
+    time_diff = end_time - start_time
+    write_log(
+        LOG_FILE,
+        "---------------------------",
+        f"Time runned : {time_diff}",
+        "---------------------------",
+    )
 
 
 if __name__ == "__main__":
