@@ -1962,7 +1962,6 @@ def main(
     )
 
     print_green("Fraggler done!")
-    print_green(f"Run time: {time_diff}")
 
 
 if __name__ == "__main__":

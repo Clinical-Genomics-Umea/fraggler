@@ -696,7 +696,7 @@ python3 test_area.py
 :b shell 75
 fraggler -t area -f ../demo/multiplex.fsa -l LIZ -o rere_out_area -sc DATA1
 :i returncode 0
-:b stdout 2186
+:b stdout 2144
 [92m[INFO]: Starting fraggler, importing libraries...[0m
 [94m
             █████▒██▀███   ▄▄▄        ▄████   ▄████  ██▓    ▓█████  ██▀███
@@ -734,14 +734,13 @@ peak_area_model: gauss
 [92m[INFO]: Fraggler done for multiplex.fsa[0m
 
 [92m[INFO]: Fraggler done![0m
-[92m[INFO]: Run time: 0:00:03.886538[0m
 
 :b stderr 0
 
 :b shell 75
 fraggler -t peak -f ../demo/multiplex.fsa -l LIZ -o rere_out_peak -sc DATA1
 :i returncode 0
-:b stdout 2186
+:b stdout 2144
 [92m[INFO]: Starting fraggler, importing libraries...[0m
 [94m
             █████▒██▀███   ▄▄▄        ▄████   ▄████  ██▓    ▓█████  ██▀███
@@ -779,7 +778,6 @@ peak_area_model: gauss
 [92m[INFO]: Fraggler done for multiplex.fsa[0m
 
 [92m[INFO]: Fraggler done![0m
-[92m[INFO]: Run time: 0:00:02.495666[0m
 
 :b stderr 0
 
