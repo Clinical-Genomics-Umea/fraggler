@@ -1,4 +1,4 @@
-name: pytest
+name: rere
 
 on:
   push:
@@ -17,18 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    
     - name: Set up Python 3.11
       uses: actions/setup-python@v3
       with:
         python-version: "3.11"
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install .
-        pip install pytest pytest-cov xvfbwrapper
-
     - name: Test with pytest
       run: |
-        pytest -rA -vv -W ignore::DeprecationWarning --cov=jefapato --cov-report term-missing tests/pytest/
+        pip install .
+        cd tests
+        python3 rere.py replay commands.list
+

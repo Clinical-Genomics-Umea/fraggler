@@ -1,0 +1,3 @@
+name,start,stop,amount,min_ratio,which,peak_distance
+prt1,220,240,3,0.2,FIRST,3
+prt2,130,155,2,0.2,FIRST,

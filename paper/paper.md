@@ -50,8 +50,6 @@ We developed `Fraggler` to address all the aforementioned problems. Fraggler is 
 
 `Fraggler` relies on several stable and widely used external dependencies, many of which coming from the _Scipy_ ecosystem, such as `Pandas`, `Numpy`, `Scikit-learn` and `Scipy` [@Virtanen2020-vm]. 
 
-Other commonly used external dependencies used by Fraggler are `Biopython` [@Cock2009-ai], `lmfit` [@Newville2014-no] and `Networkx` [@hagberg2008exploring].
-
 ## Features
 
 ### Peak Finding Algorithm
@@ -60,7 +58,7 @@ Peaks are determined using the _Signal_ module in `Scipy` [@Virtanen2020-vm]. Id
 
 ### Interpolate Basepairs from Migration Time
 
-To accurately identify the peaks in the size-standard channel, Networkx is used to calculate all possible combinations of size-standard values and the observed size-standard peaks【@hagberg2008exploring】.
+To accurately identify the peaks in the size-standard channel, the depth-first search algorithm is used to calculate all possible combinations of size-standard values and the observed size-standard peaks.
 
 Combinations of size-standards and ladder peak pairs with the highest correlation, calculated by the `corr` method in `Scipy` [@Virtanen2020-vm], are used to fit a spline-transformed linear regression model using `Scikit-learn` [@Pedregosa2012-fm]. The fitted model is used to predict time base pairs (bp), fitting the time-series data to the ladder peak values (\autoref{fig:combined_graph} B & D).
 

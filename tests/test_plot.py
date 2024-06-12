@@ -1,10 +1,10 @@
-from fraggler2 import fraggler
+from fraggler import fraggler
 import pandas as pd
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
-file = "../../demo/multiplex.fsa"
+file = "../demo/multiplex.fsa"
 fsa_file = fraggler.get_files(file)[0]
 
 

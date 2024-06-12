@@ -1069,14 +1069,14 @@ def header(
         f"""
         {text}
         """,
-        background=bg_color,
         height=height,
         margin=10,
-        style={
+        styles={
             "color": "white",
             "padding": "10px",
             "text-align": f"{textalign}",
             "font-size": f"{fontsize}",
+            "background": f"{bg_color}"
         },
     )
 

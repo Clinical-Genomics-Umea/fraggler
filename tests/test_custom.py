@@ -1,10 +1,10 @@
-from fraggler2 import fraggler
+from fraggler import fraggler
 import pandas as pd
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
-file = "../../demo/multiplex.fsa"
+file = "../demo/multiplex.fsa"
 fsa_file = fraggler.get_files(file)[0]
 
 
@@ -24,7 +24,7 @@ fsa = fraggler.calculate_best_combination_of_size_standard_peaks(fsa)
 fsa = fraggler.fit_size_standard_to_ladder(fsa)
 fsa = fraggler.find_peaks_customized(
     fsa,
-    custom_peaks="../../demo/custom_peaks.csv",
+    custom_peaks="../demo/custom_peaks.csv",
     peak_height_sample_data=300,
     search_peaks_start=115
 )
