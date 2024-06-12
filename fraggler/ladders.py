@@ -41,10 +41,6 @@ LADDERS = {
                 600,
             ]
         ),
-        "distance": 30,
-        "height": 100,
-        "max_ladder_trace_distance": 300,
-        "channel": "DATA205",
     },
     "ROX": {
         "sizes": np.array(
@@ -72,10 +68,6 @@ LADDERS = {
                 1007,
             ]
         ),
-        "distance": 30,
-        "height": 100,
-        "max_ladder_trace_distance": 600,
-        "channel": "DATA4",
     },
     "ORANGE": {
         "sizes": np.array(
@@ -103,9 +95,25 @@ LADDERS = {
                 555,
             ]
         ),
-        "distance": 30,
-        "height": 100,
-        "max_ladder_trace_distance": 300,
-        "channel": "DATA205",
+    },
+    "ROX500": {
+        "sizes": np.array(
+            [
+                75,
+                100,
+                139,
+                150,
+                160,
+                200,
+                250,
+                300,
+                340,
+                350,
+                400,
+                450,
+                490,
+                500,
+            ]
+        ),
     },
 }

@@ -1,0 +1,7 @@
+python3 test_plot.py
+python3 test_agnostic.py
+python3 test_custom.py
+python3 test_area.py
+
+fraggler -t area -f ../demo -l LIZ -o rere_out_area -sc DATA1
+fraggler -t peak -f ../demo -l LIZ -o rere_out_peak -sc DATA1

@@ -17,8 +17,7 @@ jobs:
           python-version: '3.11'
 
       - run: pip install -e .;pip install pdoc
-      - run: readlink -f ./examples/logo.png
-      - run: pdoc --logo ./examples/logo.png -o docs/ fraggler
+      - run: pdoc -o docs/ fraggler
 
       - uses: actions/upload-pages-artifact@v3
         with:
