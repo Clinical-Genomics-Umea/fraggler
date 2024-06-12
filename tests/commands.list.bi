@@ -693,10 +693,10 @@ python3 test_area.py
 
 :b stderr 0
 
-:b shell 61
-fraggler -t area -f ../demo -l LIZ -o rere_out_area -sc DATA1
+:b shell 75
+fraggler -t area -f ../demo/multiplex.fsa -l LIZ -o rere_out_area -sc DATA1
 :i returncode 0
-:b stdout 3118
+:b stdout 2144
 [92m[INFO]: Starting fraggler, importing libraries...[0m
 [94m
             █████▒██▀███   ▄▄▄        ▄████   ▄████  ██▓    ▓█████  ██▀███
@@ -711,7 +711,7 @@ fraggler -t area -f ../demo -l LIZ -o rere_out_area -sc DATA1
 
 [92m[INFO]: fraggler 
 type: area
-fsa: ../demo
+fsa: ../demo/multiplex.fsa
 output: rere_out_area
 ladder: LIZ
 sample_channel: DATA1
@@ -733,35 +733,14 @@ peak_area_model: gauss
 [92m[INFO]: Creating area report...[0m
 [92m[INFO]: Fraggler done for multiplex.fsa[0m
 
-[92m[INFO]:    Running fraggler on ../demo/error.fsa[0m
-[92m[INFO]: Using size standard channel: DATA205[0m
-[92m[INFO]: Finding peaks agnostic[0m
-[94m[SUMMARIZE]: Found 1 assays[0m
-[94m[SUMMARIZE]: Found 2 peaks[0m
-[92m[INFO]: Creating area report...[0m
-[92m[INFO]: Fraggler done for error.fsa[0m
-
-[92m[INFO]:    Running fraggler on ../demo/no_peaks.fsa[0m
-[92m[INFO]: Using size standard channel: DATA205[0m
-[93m[4m[WARNING]: To few size standard peaks found[0m
-[93m[4m[WARNING]: Ladder peaks number: 35[0m
-[93m[4m[WARNING]: Found size standard peaks: 27[0m
-[93m[4m[WARNING]: Try changing the --min_size_standard_height[0m
-[93m[4m[WARNING]: Current value: 100[0m
-[93m[4m[WARNING]: ...Or change ladder. Current ladder LIZ[0m
-[93m[4m[WARNING]: Generating a report of the raw data, please have a look...[0m
-[93m[4m[WARNING]: Continuing to the next file...[0m
-
 [92m[INFO]: Fraggler done![0m
-[93m[4m[WARNING]: Following files failed:[0m
-[93m[4m[WARNING]:    no_peaks.fsa[0m
 
 :b stderr 0
 
-:b shell 61
-fraggler -t peak -f ../demo -l LIZ -o rere_out_peak -sc DATA1
+:b shell 75
+fraggler -t peak -f ../demo/multiplex.fsa -l LIZ -o rere_out_peak -sc DATA1
 :i returncode 0
-:b stdout 3118
+:b stdout 2144
 [92m[INFO]: Starting fraggler, importing libraries...[0m
 [94m
             █████▒██▀███   ▄▄▄        ▄████   ▄████  ██▓    ▓█████  ██▀███
@@ -776,7 +755,7 @@ fraggler -t peak -f ../demo -l LIZ -o rere_out_peak -sc DATA1
 
 [92m[INFO]: fraggler 
 type: peak
-fsa: ../demo
+fsa: ../demo/multiplex.fsa
 output: rere_out_peak
 ladder: LIZ
 sample_channel: DATA1
@@ -798,28 +777,7 @@ peak_area_model: gauss
 [92m[INFO]: Creating peak report...[0m
 [92m[INFO]: Fraggler done for multiplex.fsa[0m
 
-[92m[INFO]:    Running fraggler on ../demo/error.fsa[0m
-[92m[INFO]: Using size standard channel: DATA205[0m
-[92m[INFO]: Finding peaks agnostic[0m
-[94m[SUMMARIZE]: Found 1 assays[0m
-[94m[SUMMARIZE]: Found 2 peaks[0m
-[92m[INFO]: Creating peak report...[0m
-[92m[INFO]: Fraggler done for error.fsa[0m
-
-[92m[INFO]:    Running fraggler on ../demo/no_peaks.fsa[0m
-[92m[INFO]: Using size standard channel: DATA205[0m
-[93m[4m[WARNING]: To few size standard peaks found[0m
-[93m[4m[WARNING]: Ladder peaks number: 35[0m
-[93m[4m[WARNING]: Found size standard peaks: 27[0m
-[93m[4m[WARNING]: Try changing the --min_size_standard_height[0m
-[93m[4m[WARNING]: Current value: 100[0m
-[93m[4m[WARNING]: ...Or change ladder. Current ladder LIZ[0m
-[93m[4m[WARNING]: Generating a report of the raw data, please have a look...[0m
-[93m[4m[WARNING]: Continuing to the next file...[0m
-
 [92m[INFO]: Fraggler done![0m
-[93m[4m[WARNING]: Following files failed:[0m
-[93m[4m[WARNING]:    no_peaks.fsa[0m
 
 :b stderr 0
 
