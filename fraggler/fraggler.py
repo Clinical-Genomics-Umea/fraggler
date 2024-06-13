@@ -61,6 +61,7 @@ if platform.system() == "Windows":
 
 from .ladders import LADDERS
 
+
 ### UTILITY FUNCTIONS ###
 @pf.register_dataframe_method
 def pivot_wider(
@@ -86,7 +87,7 @@ def pivot_wider(
         The reshaped DataFrame with columns named according to the specified
         identifiers and value variables.
     """
-    
+
     df = df_.pivot(index=index, columns=names_from, values=values_from).reset_index()
     names = [[str(y) for y in x] for x in df.columns]
     names = ["_".join(x).strip("_") for x in names]
@@ -261,7 +262,7 @@ class FsaFile:
         find_size_standard_channel(degree=2):
             Identifies the channel with the best fit for the size standard.
         """
-        
+
         self.file = Path(file)
         self.file_name = self.file.parts[-1]
 
@@ -367,13 +368,14 @@ class FsaFile:
         Fitted Area Peaks: {self.fitted_area_peaks}
         """
 
+
 def find_size_standard_peaks(fsa):
     """
     Identifies and extracts peaks from the size standard channel of an FSA file.
 
-    This function detects peaks in the size standard channel of the given FSA file 
-    using specified height and distance criteria. The identified peaks are then 
-    sorted and limited to the maximum number of allowed peaks, which are stored 
+    This function detects peaks in the size standard channel of the given FSA file
+    using specified height and distance criteria. The identified peaks are then
+    sorted and limited to the maximum number of allowed peaks, which are stored
     in the `size_standard_peaks` attribute of the FSA file object.
 
     Parameters:
@@ -384,10 +386,10 @@ def find_size_standard_peaks(fsa):
     Returns:
     --------
     FsaFile
-        The FsaFile instance with the `size_standard_peaks` attribute updated 
+        The FsaFile instance with the `size_standard_peaks` attribute updated
         to include the identified peaks.
     """
-    
+
     found_peaks = signal.find_peaks(
         fsa.size_standard,
         height=fsa.min_size_standard_height,
@@ -455,9 +457,9 @@ def calculate_best_combination_of_size_standard_peaks(fsa):
     """
     Calculates the best combination of size standard peaks for fitting the ladder model.
 
-    This function evaluates different combinations of size standard peaks to determine the 
-    best fit for the ladder model. It computes the second derivative of the spline for each 
-    combination of peaks and selects the combination with the smallest maximum absolute value 
+    This function evaluates different combinations of size standard peaks to determine the
+    best fit for the ladder model. It computes the second derivative of the spline for each
+    combination of peaks and selects the combination with the smallest maximum absolute value
     of the second derivative, indicating the smoothest fit.
 
     Parameters:
@@ -468,10 +470,10 @@ def calculate_best_combination_of_size_standard_peaks(fsa):
     Returns:
     --------
     FsaFile
-        The FsaFile instance with the `best_size_standard` attribute updated to include 
+        The FsaFile instance with the `best_size_standard` attribute updated to include
         the best combination of size standard peaks.
     """
-    
+
     combinations = fsa.best_size_standard_combinations
 
     best_combinations = (
@@ -494,9 +496,9 @@ def fit_size_standard_to_ladder(fsa):
     """
     Fits the size standard peaks to the ladder model and updates the FSA file object.
 
-    This function iteratively fits a spline model to the best combination of size 
-    standard peaks until each base pair in the sample data is unique. The model is 
-    then used to predict the base pairs for the sample data, and the results are stored 
+    This function iteratively fits a spline model to the best combination of size
+    standard peaks until each base pair in the sample data is unique. The model is
+    then used to predict the base pairs for the sample data, and the results are stored
     in the `sample_data_with_basepairs` attribute of the FSA file object.
 
     Parameters:
@@ -512,7 +514,7 @@ def fit_size_standard_to_ladder(fsa):
         - `sample_data_with_basepairs`: DataFrame with sample data and fitted base pairs.
         - `fitted_to_model`: Boolean indicating if the fitting was successful.
     """
-    
+
     best_combination = fsa.best_size_standard
     n_knots = 3
     for _ in range(20):
@@ -733,9 +735,9 @@ def find_peaks_agnostic(
     """
     Identifies and classifies peaks in the sample data based on specified criteria.
 
-    This function detects peaks in the sample data that exceed a given height and 
-    then classifies these peaks into assay groups based on their distances. Peaks 
-    are further filtered based on their height ratios relative to the maximum peak 
+    This function detects peaks in the sample data that exceed a given height and
+    then classifies these peaks into assay groups based on their distances. Peaks
+    are further filtered based on their height ratios relative to the maximum peak
     within each assay group.
 
     Parameters:
@@ -762,7 +764,7 @@ def find_peaks_agnostic(
     Notes:
     ------
     - Peaks are detected using the `signal.find_peaks` function from the SciPy library.
-    - Identified peaks are classified into assay groups based on the specified distance 
+    - Identified peaks are classified into assay groups based on the specified distance
       and filtered based on their height ratio within each group.
     - If no peaks are identified, the `found_peaks` attribute is set to "error".
 
@@ -806,13 +808,16 @@ def find_peaks_agnostic(
 
     return fsa
 
+
 def read_custom_peaks(custom_peaks):
     custom_peaks = (
         custom_peaks.fillna(0)
         if isinstance(custom_peaks, pd.DataFrame)
-        else pd.read_csv(custom_peaks).fillna(0)
-        if isinstance(custom_peaks, str)
-        else None
+        else (
+            pd.read_csv(custom_peaks).fillna(0)
+            if isinstance(custom_peaks, str)
+            else None
+        )
     )
     if not isinstance(custom_peaks, pd.DataFrame):
         print_fail("No custom peaks could be read")
@@ -871,9 +876,9 @@ def find_peaks_customized(
     """
     Identifies and classifies peaks in the sample data based on user-defined custom criteria.
 
-    This function detects peaks in the sample data that exceed a given height and then 
-    filters these peaks based on custom criteria provided by the user. The custom criteria 
-    include the range for peak search, the number of peaks to retain, and additional filtering 
+    This function detects peaks in the sample data that exceed a given height and then
+    filters these peaks based on custom criteria provided by the user. The custom criteria
+    include the range for peak search, the number of peaks to retain, and additional filtering
     based on peak height ratios and distances between peaks.
 
     Parameters:
@@ -899,7 +904,7 @@ def find_peaks_customized(
     ------
     - Peaks are detected using the `signal.find_peaks` function from the SciPy library.
     - The custom criteria are read using the `read_custom_peaks` function.
-    - Identified peaks are filtered based on the user-defined criteria, including peak height 
+    - Identified peaks are filtered based on the user-defined criteria, including peak height
       ratios and distances between peaks.
     - If no peaks are identified, the `found_peaks` attribute is set to "error".
     """
@@ -914,7 +919,7 @@ def find_peaks_customized(
 
     # Filter the dataframe to get right peaks
     identified_peaks = peaks_dataframe.iloc[peaks_index].assign(peaks_index=peaks_index)
-    
+
     # Filter the above dataframe based on the custom peaks from the user
     customized_peaks = []
     for assay in custom_peaks.itertuples():
@@ -980,14 +985,15 @@ def find_peaks_customized(
 
     return fsa
 
+
 ### PEAK AREA
 def find_peak_widths(fsa, rel_height: float = 0.95):
     """
     Calculates the widths of detected peaks at a specified relative height.
 
-    This function computes the widths of detected peaks in the sample data using 
-    a specified relative height. The calculated widths and their start and end 
-    points are merged with the identified peaks data and added to the 
+    This function computes the widths of detected peaks in the sample data using
+    a specified relative height. The calculated widths and their start and end
+    points are merged with the identified peaks data and added to the
     `sample_data_peak_widths` attribute of the FSA file object.
 
     Parameters:
@@ -1001,15 +1007,15 @@ def find_peak_widths(fsa, rel_height: float = 0.95):
     --------
     FsaFile
         The FsaFile instance with updated attributes:
-        - `sample_data_peak_widths`: DataFrame containing the peak widths, start and end 
+        - `sample_data_peak_widths`: DataFrame containing the peak widths, start and end
           points, and associated peak information.
 
     Notes:
     ------
-    - The function uses the `signal.peak_widths` method from the scipy library to 
+    - The function uses the `signal.peak_widths` method from the scipy library to
       calculate the peak widths.
     - The widths are calculated based on the identified peaks in the sample data.
-    - The start and end points of the peaks are adjusted to integer values by flooring 
+    - The start and end points of the peaks are adjusted to integer values by flooring
       and ceiling the calculated values, respectively.
     """
     widths = signal.peak_widths(
@@ -1030,7 +1036,6 @@ def find_peak_widths(fsa, rel_height: float = 0.95):
 
     fsa.sample_data_peak_widths = peak_widths
     return fsa
-
 
 
 def find_peaks_with_padding(fsa, padding: int = 4):
@@ -1063,9 +1068,9 @@ def fit_lmfit_model_to_area(fsa, peak_finding_model: str):
     """
     Fits a specified peak model to the areas around detected peaks using lmfit models.
 
-    This function fits a specified lmfit model (Gaussian, Voigt, or Lorentzian) to 
-    the data in the regions around detected peaks. The fitted model parameters and 
-    the best-fit results are added to the `fitted_area_peaks` attribute of the FSA 
+    This function fits a specified lmfit model (Gaussian, Voigt, or Lorentzian) to
+    the data in the regions around detected peaks. The fitted model parameters and
+    the best-fit results are added to the `fitted_area_peaks` attribute of the FSA
     file object.
 
     Parameters:
@@ -1073,7 +1078,7 @@ def fit_lmfit_model_to_area(fsa, peak_finding_model: str):
     fsa : FsaFile
         An instance of the FsaFile class containing the FSA data and relevant parameters.
     peak_finding_model : str
-        The type of peak model to fit. Options are "gauss" for Gaussian, "voigt" for Voigt, 
+        The type of peak model to fit. Options are "gauss" for Gaussian, "voigt" for Voigt,
         and "lorentzian" for Lorentzian models.
 
     Returns:
@@ -1090,7 +1095,7 @@ def fit_lmfit_model_to_area(fsa, peak_finding_model: str):
     Notes:
     ------
     - The function uses the lmfit library to fit the specified model to the peak data.
-    - The fitted parameters include amplitude, center, sigma, full-width at half maximum (FWHM), 
+    - The fitted parameters include amplitude, center, sigma, full-width at half maximum (FWHM),
       and the fit report.
     - The R-squared value of the fit is extracted from the fit report for each peak.
     """
@@ -1140,9 +1145,9 @@ def calculate_quotients(fsa):
     """
     Calculates quotients of peak amplitudes for each assay in the FSA data.
 
-    This function computes the quotients of peak amplitudes for each assay by 
-    dividing the amplitude of the last peak by the mean amplitude of a selected 
-    range of peaks. The calculated quotients are added to the `fitted_area_peaks` 
+    This function computes the quotients of peak amplitudes for each assay by
+    dividing the amplitude of the last peak by the mean amplitude of a selected
+    range of peaks. The calculated quotients are added to the `fitted_area_peaks`
     attribute of the FSA file object.
 
     Parameters:
@@ -1154,18 +1159,18 @@ def calculate_quotients(fsa):
     --------
     FsaFile
         The FsaFile instance with updated attributes:
-        - `fitted_area_peaks`: DataFrame containing the fitted peak data with an 
+        - `fitted_area_peaks`: DataFrame containing the fitted peak data with an
           additional column for the calculated quotients.
 
     Notes:
     ------
     - The function pivots the data to calculate quotients based on the peak amplitudes.
-    - If the number of columns in the pivoted DataFrame exceeds 4, the quotient is 
-      calculated as the amplitude of the last peak divided by the mean amplitude of the 
+    - If the number of columns in the pivoted DataFrame exceeds 4, the quotient is
+      calculated as the amplitude of the last peak divided by the mean amplitude of the
       second, third, and fourth peaks.
     - If the number of columns is exactly 3, the quotient is set to 0.
-    - If the number of columns is less than or equal to 4 but not exactly 3, the quotient 
-      is calculated as the amplitude of the last peak divided by the amplitude of the 
+    - If the number of columns is less than or equal to 4 but not exactly 3, the quotient
+      is calculated as the amplitude of the last peak divided by the amplitude of the
       second peak.
     """
     quotients = []
@@ -1193,7 +1198,7 @@ def calculate_quotients(fsa):
             quotient = wide.assign(
                 quotient=lambda x: x.iloc[0, 3] / x.iloc[0, 2]
             ).quotient.squeeze()
-        
+
         assay = assay.assign(quotient=quotient)
         quotients.append(assay)
 
@@ -1206,7 +1211,7 @@ def update_identified_sample_data_peaks(fsa):
     Update the .identified_sample_dat_peaks of the FsaFile object
     """
     a = fsa.identified_sample_data_peaks
-    b = fsa.fitted_area_peaks[["assay", "model", "r_value", "quotient"]]
+    b = fsa.fitted_area_peaks[["assay", "model", "r_value", "quotient", "amplitude"]]
 
     a = a.merge(b).drop_duplicates("time")
     fsa.identified_sample_data_peaks = a
@@ -1404,7 +1409,7 @@ def header(
             "padding": "10px",
             "text-align": f"{textalign}",
             "font-size": f"{fontsize}",
-            "background": f"{bg_color}"
+            "background": f"{bg_color}",
         },
     )
 
@@ -1615,8 +1620,8 @@ def generate_area_report(fsa):
     )
 
     df = fsa.identified_sample_data_peaks[
-        ["basepairs", "assay", "peak_name", "model", "r_value", "quotient"]
-    ]
+        ["basepairs", "assay", "peak_name", "model", "r_value", "quotient", "amplitude"]
+    ].rename(columns={"amplitude": "area"})
 
     # DataFrame Tabulator
     peaks_df_tab = pn.widgets.Tabulator(
@@ -1690,6 +1695,79 @@ def generate_no_peaks_report(fsa):
     )
 
     return report
+
+
+def fit_ladder(fsa):
+    """
+    Helper function to fit ladder in one step
+    """
+    try:
+        fsa = find_size_standard_peaks(fsa)
+        fsa = return_maxium_allowed_distance_between_size_standard_peaks(
+            fsa, multiplier=2
+        )
+        fsa = generate_combinations(fsa)
+        fsa = calculate_best_combination_of_size_standard_peaks(fsa)
+        fsa = fit_size_standard_to_ladder(fsa)
+
+        return fsa
+    except Exception as e:
+        print(f"Could not fit size standard to ladder because of: ")
+        print(f"{e}")
+        return None
+
+
+def find_peaks(
+    fsa,
+    peak_height_sample_data: int,
+    search_peaks_start: int,
+    custom_peaks=None,
+    min_ratio: float = None,
+    distance_between_assays: int = None,
+):
+    """
+    Helper function to find peaks
+    """
+    try:
+        if custom_peaks is not None:
+            custom_peaks = read_valid_csv(custom_peaks)
+            custom_peaks_are_overlapping(custom_peaks)
+            custom_peaks_has_columns(custom_peaks)
+
+            fsa = find_peaks_customized(
+                fsa,
+                custom_peaks,
+                peak_height_sample_data=peak_height_sample_data,
+                search_peaks_start=search_peaks_start,
+            )
+
+            return fsa
+        else:
+            fsa = find_peaks_agnostic(
+                fsa,
+                peak_height_sample_data=peak_height_sample_data,
+                min_ratio=min_ratio,
+                distance_between_assays=distance_between_assays,
+                search_peaks_start=search_peaks_start,
+            )
+            return fsa
+    except Exception as e:
+        print(f"Could not find peaks because of: ")
+        print(f"{e}")
+        return None
+
+
+def fit_area(fsa, model):
+    """
+    Helper function to fit area model to the peaks
+    """
+    fsa = find_peak_widths(fsa)
+    fsa = find_peaks_with_padding(fsa)
+    fsa = fit_lmfit_model_to_area(fsa, model)
+    fsa = calculate_quotients(fsa)
+    fsa = update_identified_sample_data_peaks(fsa)
+
+    return fsa
 
 
 def main(
@@ -1926,9 +2004,22 @@ def main(
             fsa = update_identified_sample_data_peaks(fsa)
 
             # add peaks table to list and concat later
-            peak_table = fsa.identified_sample_data_peaks[
-                ["basepairs", "assay", "peak_name", "model", "r_value", "quotient"]
-            ].assign(file_name=fsa.file_name)
+            peak_table = (
+                fsa.identified_sample_data_peaks[
+                    [
+                        "basepairs",
+                        "assay",
+                        "peak_name",
+                        "model",
+                        "r_value",
+                        "amplitude",
+                        "quotient",
+                    ]
+                ]
+                .assign(file_name=fsa.file_name)
+                .rename(columns={"amplitude": "area"})
+            )
+
             PEAK_TABLES.append(peak_table)
 
             # create report
@@ -1943,7 +2034,6 @@ def main(
     # save csv file in peak report
     if len(PEAK_TABLES) > 0:
         pd.concat(PEAK_TABLES).to_csv(f"{output}/fraggler_peaks.csv", index=False)
-
 
     if len(FAILED_FILES) > 0:
         print_warning("Following files failed:")
