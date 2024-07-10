@@ -1852,7 +1852,7 @@ def main(
             print_warning(f"...Or change ladder. Current ladder {ladder}")
             print_warning(f"Generating a report of the raw data, please have a look...")
             no_peaks_report = generate_no_peaks_report(fsa)
-            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
+            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html", title=fsa.file_name)
             print_warning(f"Continuing to the next file...")
             print("")
             FAILED_FILES.append(fsa.file_name)
@@ -1883,7 +1883,7 @@ def main(
             print_warning(f"...Or change ladder. Current ladder {ladder}")
             print_warning(f"Generating a report of the raw data, please have a look...")
             no_peaks_report = generate_no_peaks_report(fsa)
-            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
+            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html", title=fsa.file_name)
             print_warning(f"Continuing to the next file...")
             print("")
             FAILED_FILES.append(fsa.file_name)
@@ -1905,7 +1905,7 @@ def main(
             )
             print_warning(f"Generating a report of the raw data, please have a look...")
             no_peaks_report = generate_no_peaks_report(fsa)
-            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
+            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html", title=fsa.file_name)
             print_warning(f"Continuing to the next file...")
             print("")
             FAILED_FILES.append(fsa.file_name)
@@ -1946,7 +1946,7 @@ def main(
             )
             print_warning(f"Generating a report of the raw data, please have a look...")
             no_peaks_report = generate_no_peaks_report(fsa)
-            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
+            no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html", title=fsa.file_name)
             print_warning(f"Continuing to the next file...")
             print("")
             FAILED_FILES.append(fsa.file_name)
@@ -1971,7 +1971,7 @@ def main(
             # create peak report
             print_green("Creating peak report...")
             report = generate_peak_report(fsa)
-            report.save(f"{output}/{fsa.file_name}_fraggler_report.html")
+            report.save(f"{output}/{fsa.file_name}_fraggler_report.html", title=fsa.file_name)
 
             print_green(f"Fraggler done for {fsa.file_name}")
             print("")
@@ -1994,7 +1994,7 @@ def main(
                     f"Generating a report of the raw data, please have a look..."
                 )
                 no_peaks_report = generate_no_peaks_report(fsa)
-                no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html")
+                no_peaks_report.save(f"{output}/{fsa.file_name}_fraggler_fail.html", title=fsa.file_name)
                 print_warning(f"Continuing to the next file...")
                 print("")
                 FAILED_FILES.append(fsa.file_name)
@@ -2025,7 +2025,7 @@ def main(
             # create report
             print_green("Creating area report...")
             report = generate_area_report(fsa)
-            report.save(f"{output}/{fsa.file_name}_fraggler_report.html")
+            report.save(f"{output}/{fsa.file_name}_fraggler_report.html", title=fsa.file_name)
 
             print_green(f"Fraggler done for {fsa.file_name}")
             print("")
