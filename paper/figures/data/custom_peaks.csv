@@ -1,0 +1,5 @@
+name,start,stop,amount,min_ratio,which,peak_distance
+prt1,140,155,2,0.4,LARGEST,
+prt3,220,250,2,0.4,LARGEST,
+prt2,190,200,2,,LARGEST,
+prt4,250,290,5,,LARGEST,

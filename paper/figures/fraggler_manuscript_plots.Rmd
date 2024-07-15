@@ -1,0 +1,161 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+library(tidyverse)
+library(broom)
+library(cowplot)
+```
+
+# data from fraggler
+```{r}
+fraggler <- read_csv("data/fraggler_peaks.csv") %>%
+  mutate(assay_number = parse_number(assay)) %>%
+  # the quotient for assay 1 is inversed from the other assays
+  mutate(quotient = if_else(assay_number == 1 & quotient > 0, 1 / quotient, quotient))
+
+# known cnv and code for the controls 
+controls <- tibble(
+  name = c("NA18956", "NA18555", "NA12752", "NA18517", "NA10855", "NA12044", "NA07056", "NA18507"),
+  code = c(7, 6, 3, 5, 8, 2, 1, 4),
+  cnv1 = c(2, 3, 3, 4, 4, 4, 4, 5),
+  cnv2 = c(2, 2, 5, 2, 4, 5, 6, 3)
+) 
+
+fraggler <- fraggler %>%
+  # filter out the controls
+  filter(str_detect(file_name, "_K\\d_")) %>%
+  mutate(code = str_extract(file_name, "(Multi_K)(\\d*)", group = 2)) %>%
+  mutate(code = as.numeric(code)) %>%
+  group_by(file_name, code, assay_number) %>%
+  summarise(quotient = mean(quotient)) %>%
+  ungroup() %>%
+  inner_join(controls, by = "code") %>%
+  select(-file_name) %>%
+  mutate(platform = "fraggler") %>%
+  rename(ratio = quotient)
+
+```
+
+# data from peakscanner
+The peakscanner dataframe was created by uploading the files from data_for_manuscript to peakscanner online and merging the resulting csv into one file.
+```{r}
+ps <- read_csv("data/peakscanner_cnv.csv") %>%
+  janitor::clean_names() %>%
+  mutate(assay_number = parse_number(sample_filename)) %>%
+  mutate(size = as.double(size)) %>%
+  rename(area = area_base_pairs) %>%
+  select(assay_number, size, area)
+```
+
+```{r}
+quotient <- function(df, number, start, stop, n) {
+  areas <- df %>%
+    filter(assay_number == number) %>%
+    filter(between(size, start, stop)) %>%
+    slice_max(area, n = n) %>%
+    arrange(size) %>%
+    pull(area)
+    
+  areas[1] / areas[2]
+}
+
+ps_prt1 <- tibble()
+
+for (n in 1:7) {
+  ratio <- quotient(ps, n, 140, 154, 2)
+  subset <- tibble(assay_number = n, ratio = ratio, prt = 1)
+  
+  if (n == 7) {
+    subset <- tibble(assay_number = n, ratio = 0, prt = 1)
+  }
+  
+  ps_prt1 <- ps_prt1 %>% bind_rows(subset)
+} 
+
+quotient <- function(df, number, start, stop, n) {
+  areas <- df %>%
+    filter(assay_number == number) %>%
+    filter(between(size, start, stop)) %>%
+    slice_max(area, n = n) %>%
+    arrange(size) %>%
+    pull(area)
+    
+  areas[2] / areas[1]
+}
+
+ps_prt2 <- tibble()
+
+for (n in 1:7) {
+  ratio <- quotient(ps, n, 190, 200, 2)
+  subset <- tibble(assay_number = n, ratio = ratio, prt = 2)
+  
+  ps_prt2 <- ps_prt2 %>% bind_rows(subset)
+} 
+
+ps_prt3 <- tibble()
+
+for (n in 1:7) {
+  ratio <- quotient(ps, n, 220, 240, 2)
+  subset <- tibble(assay_number = n, ratio = ratio, prt = 3)
+  
+  if (n == 7) {
+    subset <- tibble(assay_number = n, ratio = 0, prt = 3)
+  }
+  
+  ps_prt3 <- ps_prt3 %>% bind_rows(subset)
+} 
+
+quotient <- function(df, number, start, stop, n) {
+  areas <- df %>%
+    filter(assay_number == number) %>%
+    filter(between(size, start, stop)) %>%
+    slice_max(area, n = n) %>%
+    arrange(size) %>%
+    pull(area)
+    
+  result <- tail(areas, n = 1) / mean(head(areas, n = 4))
+  return(result)
+}
+
+ps_prt4 <- tibble()
+
+for (n in 1:7) {
+  ratio <- quotient(ps, n, 260, 290, 5)
+  subset <- tibble(assay_number = n, ratio = ratio, prt = 4)
+  
+  ps_prt4 <- ps_prt4 %>% bind_rows(subset)
+} 
+
+all_ps <- bind_rows(ps_prt1, ps_prt2, ps_prt3, ps_prt4) %>%
+  rename(code = assay_number) %>%
+  rename(assay_number = prt)
+```
+
+```{r}
+all_ps <- all_ps %>%
+  left_join(fraggler %>% select(-ratio)) %>%
+  mutate(platform = "peakscanner")
+
+df <- bind_rows(all_ps, fraggler)
+
+figure_2 <- df %>%
+  rename(sample = name) %>%
+  pivot_longer(c(cnv1, cnv2)) %>%
+  filter((name == "cnv1" & assay_number %in% c(1, 3)) | ((name == "cnv2" & assay_number %in% c(2, 4)))) %>%
+  ggplot(aes(ratio, value, color = platform)) +
+  geom_point(size = 4, alpha = 0.5, show.legend = TRUE) +
+  geom_smooth(method = "lm", se = FALSE, show.legend = FALSE) +
+  labs(
+    x = "Area Ratio",
+    y = "Known CNV",
+    color = "Program"
+  ) +
+  facet_wrap(~assay_number, scale = "free") +
+  see::scale_color_material()
+
+
+figure_2
+```
