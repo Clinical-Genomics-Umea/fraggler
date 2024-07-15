@@ -1352,7 +1352,10 @@ def write_log(file, *text):
 
 def read_valid_csv(csv):
     try:
-        df = pd.read_csv(csv)
+        if isinstance(csv, str):
+            df = pd.read_csv(csv)
+        else:
+            df = csv
         return df
     except:
         print_fail(f"{csv} cannot be read!")
@@ -1911,7 +1914,7 @@ def main(
             FAILED_FILES.append(fsa.file_name)
             continue
 
-        if custom_peaks:
+        if custom_peaks is not None:
             print_green(f"Using custom peaks")
             # test if custom peaks are ok
             custom_peaks = read_valid_csv(custom_peaks)
