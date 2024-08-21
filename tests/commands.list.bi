@@ -696,7 +696,7 @@ python3 test_area.py
 :b shell 75
 fraggler -t area -f ../demo/multiplex.fsa -l LIZ -o rere_out_area -sc DATA1
 :i returncode 0
-:b stdout 679
+:b stdout 689
 [INFO]: Starting fraggler, importing libraries...
 [INFO]: fraggler 
 type: area
@@ -717,8 +717,8 @@ peak_area_model: gauss
 [INFO]:    Running fraggler on ../demo/multiplex.fsa
 [INFO]: Using size standard channel: DATA205
 [INFO]: Finding peaks agnostic
-[INFO]: Found 4 assays
-[INFO]: Found 11 peaks
+[SUMMARIZE]: Found 4 assays
+[SUMMARIZE]: Found 11 peaks
 [INFO]: Creating area report...
 [INFO]: Fraggler done for multiplex.fsa
 
@@ -729,7 +729,7 @@ peak_area_model: gauss
 :b shell 75
 fraggler -t peak -f ../demo/multiplex.fsa -l LIZ -o rere_out_peak -sc DATA1
 :i returncode 0
-:b stdout 679
+:b stdout 689
 [INFO]: Starting fraggler, importing libraries...
 [INFO]: fraggler 
 type: peak
@@ -750,8 +750,8 @@ peak_area_model: gauss
 [INFO]:    Running fraggler on ../demo/multiplex.fsa
 [INFO]: Using size standard channel: DATA205
 [INFO]: Finding peaks agnostic
-[INFO]: Found 4 assays
-[INFO]: Found 11 peaks
+[SUMMARIZE]: Found 4 assays
+[SUMMARIZE]: Found 11 peaks
 [INFO]: Creating peak report...
 [INFO]: Fraggler done for multiplex.fsa
 
