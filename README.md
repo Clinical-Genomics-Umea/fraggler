@@ -106,7 +106,7 @@ prt4,262,290,5,,,
 
 
 #### Documentation
-Click [here](https://clinical-genomics-umea.github.io/fraggler/fraggler.html) to get full documentation of API.
+Click [here](https://clinical-genomics-umea.github.io/fraggler/fraggler/fraggler.html) to get full documentation of API.
 
 ## Output
 One example of the report generated from `fraggler area` can be seen here: [Example report](examples/multiplex_fraggler_area.html)
