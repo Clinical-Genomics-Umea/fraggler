@@ -1,3 +1,5 @@
+import sys
+
 class bcolors:
     OKBLUE = "\033[94m"
     OKCYAN = "\033[96m"
@@ -7,19 +9,31 @@ class bcolors:
     ENDC = "\033[0m"
     UNDERLINE = "\033[4m"
 
+def print_tty(func):
+    def wrapper(text):
+        if sys.stdout.isatty():
+            func(text)
+        else:
+            print(f"[INFO]: {text}")
+    return wrapper
 
+
+@print_tty
 def print_green(text):
     print(f"{bcolors.OKGREEN}[INFO]: {text}{bcolors.ENDC}")
 
 
+@print_tty
 def print_warning(text):
     print(f"{bcolors.WARNING}{bcolors.UNDERLINE}[WARNING]: {text}{bcolors.ENDC}")
 
 
+@print_tty
 def print_fail(text):
     print(f"{bcolors.FAIL}{bcolors.UNDERLINE}[ERROR]: {text}{bcolors.ENDC}")
 
 
+@print_tty
 def print_blue(text):
     print(f"{bcolors.OKBLUE}[SUMMARIZE]: {text}{bcolors.ENDC}")
 
@@ -44,7 +58,6 @@ import pandas as pd
 import altair as alt
 from lmfit.models import VoigtModel, GaussianModel, LorentzianModel
 import re
-import sys
 from datetime import datetime
 import argparse
 import warnings
@@ -175,7 +188,7 @@ def folder_exists(folder):
         sys.exit(1)
 
 
-ASCII_ART = f"""{bcolors.OKBLUE}
+ASCII_ART = f"""
             █████▒██▀███   ▄▄▄        ▄████   ▄████  ██▓    ▓█████  ██▀███
           ▓██   ▒▓██ ▒ ██▒▒████▄     ██▒ ▀█▒ ██▒ ▀█▒▓██▒    ▓█   ▀ ▓██ ▒ ██▒
           ▒████ ░▓██ ░▄█ ▒▒██  ▀█▄  ▒██░▄▄▄░▒██░▄▄▄░▒██░    ▒███   ▓██ ░▄█ ▒
@@ -184,9 +197,14 @@ ASCII_ART = f"""{bcolors.OKBLUE}
            ▒ ░   ░ ▒▓ ░▒▓░ ▒▒   ▓▒█░ ░▒   ▒  ░▒   ▒ ░ ▒░▓  ░░░ ▒░ ░░ ▒▓ ░▒▓░
            ░       ░▒ ░ ▒░  ▒   ▒▒ ░  ░   ░   ░   ░ ░ ░ ▒  ░ ░ ░  ░  ░▒ ░ ▒░
            ░ ░     ░░   ░   ░   ▒   ░ ░   ░ ░ ░   ░   ░ ░      ░     ░░   ░
-                    ░           ░  ░      ░       ░     ░  ░   ░  ░   ░{bcolors.ENDC}
+                    ░           ░  ░      ░       ░     ░  ░   ░  ░   ░
 """
 
+def print_ascii_art(text):
+    if sys.stdout.isatty():
+        print(f"{bcolors.OKBLUE}{text}{bcolors.ENDC}")
+    else:
+        return
 
 ### FSA ###
 
@@ -1322,7 +1340,7 @@ def cli():
 
     args = parser.parse_args()
 
-    print(ASCII_ART)
+    print_ascii_art(ASCII_ART)
     command = "fraggler \n" + "".join(f"{k}: {v}\n" for k, v in vars(args).items())
     print_green(command)
 
