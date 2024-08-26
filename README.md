@@ -1,6 +1,7 @@
 ![Build Status](https://github.com/clinical-genomics-umea/fraggler/actions/workflows/pdoc.yaml/badge.svg)
 [![!pypi](https://img.shields.io/pypi/v/fraggler?color=cyan)](https://pypi.org/project/fraggler/)
 [![Download Status](https://static.pepy.tech/badge/fraggler)](https://pypi.python.org/pypi/fraggler/)
+[![status](https://joss.theoj.org/papers/81151fc975a2a38308643c816df4a029/status.svg)](https://joss.theoj.org/papers/81151fc975a2a38308643c816df4a029)
 
 ![logo](examples/logo.png)
 
@@ -19,7 +20,6 @@ pip install fraggler
 ### Dependencies
 Fraggler depends on:
 - pandas
-- numpy
 - scikit-learn
 - lmfit
 - scipy
@@ -110,6 +110,9 @@ Click [here](https://clinical-genomics-umea.github.io/fraggler/fraggler/fraggler
 
 ## Output
 One example of the report generated from `fraggler area` can be seen here: [Example report](examples/multiplex_fraggler_area.html)
+
+## Citation
+If you use `fraggler`, please cite the [paper](https://joss.theoj.org/papers/10.21105/joss.06869)!
 
 ## Contributions
 Please check out [How to contribute](CONTRIBUTION.md)
