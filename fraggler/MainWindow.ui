@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>786</width>
-    <height>616</height>
+    <height>629</height>
    </rect>
   </property>
   <property name="font">
@@ -64,6 +64,12 @@
          </item>
          <item>
           <widget class="QLabel" name="label_icon">
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <pointsize>12</pointsize>
@@ -99,15 +105,37 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QTreeView" name="treeView_2"/>
+          <widget class="QTreeView" name="treeView_2">
+           <property name="maximumSize">
+            <size>
+             <width>200</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
          </item>
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <property name="leftMargin">
             <number>0</number>
            </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QListWidget" name="listWidget"/>
+            <widget class="QWebEngineView" name="webEngineView">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>200</height>
+              </size>
+             </property>
+             <property name="url">
+              <url>
+               <string>about:blank</string>
+              </url>
+             </property>
+            </widget>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -131,18 +159,6 @@
                  </property>
                  <property name="text">
                   <string>Select File</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="filenameLabel">
-                 <property name="font">
-                  <font>
-                   <pointsize>10</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Filename</string>
                  </property>
                 </widget>
                </item>
@@ -205,6 +221,12 @@
                      <property name="toolTip">
                       <string>Which sample channel to use. E.g. 'DATA1', 'DATA2'...</string>
                      </property>
+                     <property name="inputMask">
+                      <string/>
+                     </property>
+                     <property name="text">
+                      <string>DATA1</string>
+                     </property>
                     </widget>
                    </item>
                    <item>
@@ -229,6 +251,9 @@
                      <property name="toolTip">
                       <string>Where to start searching for peaks in basepairs</string>
                      </property>
+                     <property name="text">
+                      <string>115</string>
+                     </property>
                     </widget>
                    </item>
                    <item>
@@ -252,6 +277,9 @@
                      </property>
                      <property name="toolTip">
                       <string>Minimum ratio of the lowest peak compared to the highest peak in the assay</string>
+                     </property>
+                     <property name="text">
+                      <string>0.15</string>
                      </property>
                     </widget>
                    </item>
@@ -356,6 +384,9 @@
                      <property name="toolTip">
                       <string>Minimum distance between size standard peaks</string>
                      </property>
+                     <property name="text">
+                      <string>30</string>
+                     </property>
                     </widget>
                    </item>
                    <item>
@@ -379,6 +410,9 @@
                      </property>
                      <property name="toolTip">
                       <string>Minimum height of peaks in sample data</string>
+                     </property>
+                     <property name="text">
+                      <string>100</string>
                      </property>
                     </widget>
                    </item>
@@ -404,6 +438,9 @@
                      <property name="toolTip">
                       <string>Minimum height of peaks in sample data</string>
                      </property>
+                     <property name="text">
+                      <string>300</string>
+                     </property>
                     </widget>
                    </item>
                    <item>
@@ -427,6 +464,9 @@
                      </property>
                      <property name="toolTip">
                       <string>Minimum distance between assays in a multiple assay experiment</string>
+                     </property>
+                     <property name="text">
+                      <string>15</string>
                      </property>
                     </widget>
                    </item>
@@ -473,7 +513,13 @@
               </layout>
              </item>
              <item>
-              <widget class="QListView" name="listView"/>
+              <widget class="QListWidget" name="listWidget">
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
@@ -504,7 +550,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="action_loadKeyFile"/>
+    <addaction name="action_loadFSAFile"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -524,7 +570,7 @@
     </font>
    </property>
   </widget>
-  <action name="action_loadKeyFile">
+  <action name="action_loadFSAFile">
    <property name="checkable">
     <bool>false</bool>
    </property>
@@ -561,6 +607,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebEngineView</class>
+   <extends>QWidget</extends>
+   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
