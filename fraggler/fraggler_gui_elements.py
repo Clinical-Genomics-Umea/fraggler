@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'MainWindowNtwale.ui'
+## Form generated from reading UI file 'MainWindowCHlslk.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
@@ -18,16 +18,16 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QTransform)
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QHBoxLayout,
-    QHeaderView, QLabel, QLineEdit, QListWidget,
+    QLabel, QLayout, QLineEdit, QListWidget,
     QListWidgetItem, QMainWindow, QMenu, QMenuBar,
-    QPushButton, QSizePolicy, QStatusBar, QTreeView,
-    QVBoxLayout, QWidget)
+    QPushButton, QSizePolicy, QStatusBar, QVBoxLayout,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(786, 629)
+        MainWindow.resize(786, 832)
         font = QFont()
         font.setPointSize(15)
         MainWindow.setFont(font)
@@ -96,24 +96,19 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.treeView_2 = QTreeView(self.frame_3)
-        self.treeView_2.setObjectName(u"treeView_2")
-        self.treeView_2.setMaximumSize(QSize(200, 16777215))
-
-        self.horizontalLayout.addWidget(self.treeView_2)
-
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, -1, -1)
         self.webEngineView = QWebEngineView(self.frame_3)
         self.webEngineView.setObjectName(u"webEngineView")
-        self.webEngineView.setMinimumSize(QSize(0, 200))
+        self.webEngineView.setMinimumSize(QSize(0, 350))
         self.webEngineView.setUrl(QUrl(u"about:blank"))
 
         self.verticalLayout_3.addWidget(self.webEngineView)
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
         self.horizontalLayout_2.setContentsMargins(0, 0, -1, -1)
         self.verticalLayout_8 = QVBoxLayout()
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
@@ -129,21 +124,63 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.horizontalLayout_6.setContentsMargins(0, -1, -1, -1)
-        self.verticalLayout_9 = QVBoxLayout()
-        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
-        self.verticalLayout_9.setContentsMargins(0, -1, -1, -1)
+        self.verticalLayout_6 = QVBoxLayout()
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.verticalLayout_6.setContentsMargins(0, -1, -1, -1)
         self.typeLabel = QLabel(self.frame_3)
         self.typeLabel.setObjectName(u"typeLabel")
         self.typeLabel.setFont(font3)
 
-        self.verticalLayout_9.addWidget(self.typeLabel)
+        self.verticalLayout_6.addWidget(self.typeLabel)
 
         self.typeComboBox = QComboBox(self.frame_3)
         self.typeComboBox.setObjectName(u"typeComboBox")
         self.typeComboBox.setFont(font3)
 
-        self.verticalLayout_9.addWidget(self.typeComboBox)
+        self.verticalLayout_6.addWidget(self.typeComboBox)
 
+        self.ladderLabel = QLabel(self.frame_3)
+        self.ladderLabel.setObjectName(u"ladderLabel")
+        self.ladderLabel.setFont(font3)
+
+        self.verticalLayout_6.addWidget(self.ladderLabel)
+
+        self.ladderComboBox = QComboBox(self.frame_3)
+        self.ladderComboBox.setObjectName(u"ladderComboBox")
+        self.ladderComboBox.setFont(font3)
+
+        self.verticalLayout_6.addWidget(self.ladderComboBox)
+
+        self.peakAreaModelLabel = QLabel(self.frame_3)
+        self.peakAreaModelLabel.setObjectName(u"peakAreaModelLabel")
+        self.peakAreaModelLabel.setFont(font3)
+
+        self.verticalLayout_6.addWidget(self.peakAreaModelLabel)
+
+        self.peakModelComboBox = QComboBox(self.frame_3)
+        self.peakModelComboBox.setObjectName(u"peakModelComboBox")
+        self.peakModelComboBox.setFont(font3)
+
+        self.verticalLayout_6.addWidget(self.peakModelComboBox)
+
+        self.outputLabel = QLabel(self.frame_3)
+        self.outputLabel.setObjectName(u"outputLabel")
+        self.outputLabel.setFont(font3)
+
+        self.verticalLayout_6.addWidget(self.outputLabel)
+
+        self.outputFolderInput = QLineEdit(self.frame_3)
+        self.outputFolderInput.setObjectName(u"outputFolderInput")
+        self.outputFolderInput.setFont(font3)
+
+        self.verticalLayout_6.addWidget(self.outputFolderInput)
+
+
+        self.horizontalLayout_6.addLayout(self.verticalLayout_6)
+
+        self.verticalLayout_9 = QVBoxLayout()
+        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
+        self.verticalLayout_9.setContentsMargins(0, -1, -1, -1)
         self.sampleChannelLabel = QLabel(self.frame_3)
         self.sampleChannelLabel.setObjectName(u"sampleChannelLabel")
         self.sampleChannelLabel.setFont(font3)
@@ -180,18 +217,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_9.addWidget(self.minPeakRatioInput)
 
-        self.peakAreaModelLabel = QLabel(self.frame_3)
-        self.peakAreaModelLabel.setObjectName(u"peakAreaModelLabel")
-        self.peakAreaModelLabel.setFont(font3)
-
-        self.verticalLayout_9.addWidget(self.peakAreaModelLabel)
-
-        self.peakModelComboBox = QComboBox(self.frame_3)
-        self.peakModelComboBox.setObjectName(u"peakModelComboBox")
-        self.peakModelComboBox.setFont(font3)
-
-        self.verticalLayout_9.addWidget(self.peakModelComboBox)
-
         self.customPeaksLabel = QLabel(self.frame_3)
         self.customPeaksLabel.setObjectName(u"customPeaksLabel")
         self.customPeaksLabel.setFont(font3)
@@ -210,18 +235,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_4 = QVBoxLayout()
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.verticalLayout_4.setContentsMargins(0, -1, -1, -1)
-        self.ladderLabel = QLabel(self.frame_3)
-        self.ladderLabel.setObjectName(u"ladderLabel")
-        self.ladderLabel.setFont(font3)
-
-        self.verticalLayout_4.addWidget(self.ladderLabel)
-
-        self.ladderComboBox = QComboBox(self.frame_3)
-        self.ladderComboBox.setObjectName(u"ladderComboBox")
-        self.ladderComboBox.setFont(font3)
-
-        self.verticalLayout_4.addWidget(self.ladderComboBox)
-
         self.minDistanceBetweenPeaksLabel = QLabel(self.frame_3)
         self.minDistanceBetweenPeaksLabel.setObjectName(u"minDistanceBetweenPeaksLabel")
         self.minDistanceBetweenPeaksLabel.setFont(font3)
@@ -270,18 +283,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addWidget(self.minDistAssaysInput)
 
-        self.outputLabel = QLabel(self.frame_3)
-        self.outputLabel.setObjectName(u"outputLabel")
-        self.outputLabel.setFont(font3)
-
-        self.verticalLayout_4.addWidget(self.outputLabel)
-
-        self.outputFolderInput = QLineEdit(self.frame_3)
-        self.outputFolderInput.setObjectName(u"outputFolderInput")
-        self.outputFolderInput.setFont(font3)
-
-        self.verticalLayout_4.addWidget(self.outputFolderInput)
-
 
         self.horizontalLayout_6.addLayout(self.verticalLayout_4)
 
@@ -299,6 +300,7 @@ class Ui_MainWindow(object):
 
         self.listWidget = QListWidget(self.frame_3)
         self.listWidget.setObjectName(u"listWidget")
+        self.listWidget.setMaximumSize(QSize(16777215, 16777215))
         font4 = QFont()
         font4.setPointSize(8)
         self.listWidget.setFont(font4)
@@ -365,6 +367,18 @@ class Ui_MainWindow(object):
         self.typeComboBox.setToolTip(QCoreApplication.translate("MainWindow", u"Fraggler area or fraggler peak.", None))
 #endif // QT_CONFIG(tooltip)
         self.typeComboBox.setCurrentText("")
+        self.ladderLabel.setText(QCoreApplication.translate("MainWindow", u"Ladder", None))
+#if QT_CONFIG(tooltip)
+        self.ladderComboBox.setToolTip(QCoreApplication.translate("MainWindow", u"Which ladder to use.", None))
+#endif // QT_CONFIG(tooltip)
+        self.peakAreaModelLabel.setText(QCoreApplication.translate("MainWindow", u"Peak Finding Model", None))
+#if QT_CONFIG(tooltip)
+        self.peakModelComboBox.setToolTip(QCoreApplication.translate("MainWindow", u"Which peak finding model to use", None))
+#endif // QT_CONFIG(tooltip)
+        self.outputLabel.setText(QCoreApplication.translate("MainWindow", u"Output Folder Name", None))
+#if QT_CONFIG(tooltip)
+        self.outputFolderInput.setToolTip(QCoreApplication.translate("MainWindow", u"Output folder name (must be unique)", None))
+#endif // QT_CONFIG(tooltip)
         self.sampleChannelLabel.setText(QCoreApplication.translate("MainWindow", u"Sample Channel", None))
 #if QT_CONFIG(tooltip)
         self.sampleChannelInput.setToolTip(QCoreApplication.translate("MainWindow", u"Which sample channel to use. E.g. 'DATA1', 'DATA2'...", None))
@@ -381,17 +395,9 @@ class Ui_MainWindow(object):
         self.minPeakRatioInput.setToolTip(QCoreApplication.translate("MainWindow", u"Minimum ratio of the lowest peak compared to the highest peak in the assay", None))
 #endif // QT_CONFIG(tooltip)
         self.minPeakRatioInput.setText(QCoreApplication.translate("MainWindow", u"0.15", None))
-        self.peakAreaModelLabel.setText(QCoreApplication.translate("MainWindow", u"Peak Finding Model", None))
-#if QT_CONFIG(tooltip)
-        self.peakModelComboBox.setToolTip(QCoreApplication.translate("MainWindow", u"Which peak finding model to use", None))
-#endif // QT_CONFIG(tooltip)
         self.customPeaksLabel.setText(QCoreApplication.translate("MainWindow", u"Custom Peaks (Optional)", None))
 #if QT_CONFIG(tooltip)
         self.customPeaksInput.setToolTip(QCoreApplication.translate("MainWindow", u"CSV Filename with custom peaks to find", None))
-#endif // QT_CONFIG(tooltip)
-        self.ladderLabel.setText(QCoreApplication.translate("MainWindow", u"Ladder", None))
-#if QT_CONFIG(tooltip)
-        self.ladderComboBox.setToolTip(QCoreApplication.translate("MainWindow", u"Which ladder to use.", None))
 #endif // QT_CONFIG(tooltip)
         self.minDistanceBetweenPeaksLabel.setText(QCoreApplication.translate("MainWindow", u"Min. Distance Between Peaks", None))
 #if QT_CONFIG(tooltip)
@@ -413,10 +419,6 @@ class Ui_MainWindow(object):
         self.minDistAssaysInput.setToolTip(QCoreApplication.translate("MainWindow", u"Minimum distance between assays in a multiple assay experiment", None))
 #endif // QT_CONFIG(tooltip)
         self.minDistAssaysInput.setText(QCoreApplication.translate("MainWindow", u"15", None))
-        self.outputLabel.setText(QCoreApplication.translate("MainWindow", u"Output Folder Name", None))
-#if QT_CONFIG(tooltip)
-        self.outputFolderInput.setToolTip(QCoreApplication.translate("MainWindow", u"Output folder name (must be unique)", None))
-#endif // QT_CONFIG(tooltip)
         self.runFragglerButton.setText(QCoreApplication.translate("MainWindow", u"Run Fraggler", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))

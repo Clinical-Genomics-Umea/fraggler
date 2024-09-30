@@ -60,8 +60,8 @@ class MainWindow(QMainWindow):
         self.worker.finished.connect(self.enableButtons)
         self.ui.webEngineView.settings().setAttribute(QWebEngineSettings.LocalContentCanAccessFileUrls, True)
         self.ui.webEngineView.settings().setAttribute(QWebEngineSettings.LocalContentCanAccessRemoteUrls, True)
-        self.showFullScreen()
-    
+        self.showMaximized()
+
     def display_report(self, report_path):
         """Display the generated report in QWebEngineView."""
         self.logger.info(f"Generated report path: {report_path}")
@@ -355,7 +355,8 @@ class MainWindow(QMainWindow):
         if not self.validateEntries():
             self.logger.info("Invalid entries...")
             return
-
+        self.logger.info("Running fraggler with file %s", self.fp)
+        self.logger.info("Please wait, this will only take a moment...")
         # Create a QThread object
         self.thread = QThread()
         # Create a worker object
