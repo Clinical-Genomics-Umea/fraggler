@@ -2,7 +2,10 @@ import os
 import platform
 import subprocess
 import sys
+import tempfile
 
+from PySide6.QtCore import QThread, Signal, QObject
+from bokeh.embed import components
 
 import PySide6
 from PySide6.QtWidgets import *
@@ -15,7 +18,7 @@ import fraggler
 import log_config
 import ladders
 import panel as pn
-import glob
+from PySide6.QtWebEngineCore import QWebEngineSettings  # Add this line
 
 
 class MainWindow(QMainWindow):
@@ -27,8 +30,7 @@ class MainWindow(QMainWindow):
         self.fp = None
 
         # Check if the system theme is dark or light
-        self.get_system_theme()
-
+        self.system_theme = self.get_system_theme()
         # Apply the system theme
         if self.system_theme == "dark":
             self.apply_dark_theme()
@@ -49,7 +51,26 @@ class MainWindow(QMainWindow):
         self.statusUpdateTimer.start(
             10000
         )  # Timer interval set to 10000 milliseconds (10 second)
-        # self.ui.lineEdit_busAddress.setValidator(QIntValidator(0, 255))
+
+        # Setup the worker and thread
+        self.worker = Worker(parent=self)
+        self.worker = Worker(parent=self)
+        self.worker.report_generated.connect(self.display_report)
+        self.worker.error.connect(self.handle_error)
+        self.worker.finished.connect(self.enableButtons)
+        self.ui.webEngineView.settings().setAttribute(QWebEngineSettings.LocalContentCanAccessFileUrls, True)
+        self.ui.webEngineView.settings().setAttribute(QWebEngineSettings.LocalContentCanAccessRemoteUrls, True)
+        self.showFullScreen()
+    
+    def display_report(self, report_path):
+        """Display the generated report in QWebEngineView."""
+        self.logger.info(f"Generated report path: {report_path}")
+        self.ui.webEngineView.load(QUrl.fromLocalFile(report_path))
+        self.ui.webEngineView.show()
+
+    def handle_error(self, error_message):
+        """Handle error if any occurs."""
+        QMessageBox.critical(self, "Error", error_message)
 
     ################## INITIALIZATION ##################
     def load_ui(self):
@@ -77,10 +98,8 @@ class MainWindow(QMainWindow):
         # type is area or peak
         # Populate the typeComboBox with TYPES
         self.ui.typeComboBox.addItems(fraggler.TYPES)
-
         # Populate the peakModelComboBox with PEAK_AREA_MODELS
         self.ui.peakModelComboBox.addItems(fraggler.PEAK_AREA_MODELS)
-
         # Assuming LADDERS is a dictionary and you want to populate ladderComboBox with its keys
         self.ui.ladderComboBox.addItems(ladders.LADDERS.keys())
 
@@ -273,7 +292,7 @@ class MainWindow(QMainWindow):
         return True
 
     ############### RUN FRAGGLER CLI ###############
-    def runFraggler(self):
+    # def runFraggler(self):
 
         if not self.validateEntries():
             self.logger.info("Invalid entries...")
@@ -327,12 +346,42 @@ class MainWindow(QMainWindow):
                     )
                 finally:
                     self.parent.enableButtons()
-
-
-
-        # Create and start the thread
+                    # Create and start the thread
         self.thread = RunFragglerThread(self)
         self.thread.start()
+    
+    
+    def runFraggler(self):
+        if not self.validateEntries():
+            self.logger.info("Invalid entries...")
+            return
+
+        # Create a QThread object
+        self.thread = QThread()
+        # Create a worker object
+        self.worker = Worker(self)
+        # Move the worker to the thread
+        self.worker.moveToThread(self.thread)
+        # Connect signals and slots
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.error.connect(self.handle_error)
+        self.worker.progress.connect(self.report_progress)
+        self.worker.finished.connect(self.enableButtons)
+
+        # Connect the report_generated signal to the display_report slot
+        self.worker.report_generated.connect(self.display_report)
+
+        # Start the thread
+        self.thread.start()
+
+    def handle_error(self, error_message):
+        self.logger.error("Error occurred while running fraggler: %s", error_message)
+
+    def report_progress(self, message):
+        self.logger.info(message)
 
 
     ############### LOGGING ###############
@@ -362,13 +411,55 @@ class MainWindow(QMainWindow):
         self.ui.listWidget.insertItem(0, item)
 
 
+class Worker(QObject):
+    finished = Signal()
+    error = Signal(str)
+    progress = Signal(str)
+    report_generated = Signal(str)  # Emit the path of the temporary report file
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+
+    def run(self):
+        self.parent.disableButtons()
+
+        try:
+            report = fraggler.runFraggler(
+                type=self.parent.ui.typeComboBox.currentText(),
+                fsa=self.parent.fp,
+                output=self.parent.ui.outputFolderInput.text() or None,
+                ladder=self.parent.ui.ladderComboBox.currentText() or None,
+                sample_channel=self.parent.ui.sampleChannelInput.text() or None,
+                min_distance_between_peaks=int(self.parent.ui.minDistBetweenPeaksInput.text() or 0),
+                min_size_standard_height=int(self.parent.ui.minHeightPeakInput.text() or 0),
+                custom_peaks=self.parent.ui.customPeaksInput.text() or None,
+                peak_height_sample_data=int(self.parent.ui.minPeakHeightInput.text() or 0),
+                min_ratio_to_allow_peak=float(self.parent.ui.minPeakRatioInput.text() or 0),
+                distance_between_assays=int(self.parent.ui.minDistAssaysInput.text() or 0),
+                search_peaks_start=int(self.parent.ui.peakStartInput.text() or 0),
+                peak_area_model=self.parent.ui.peakModelComboBox.currentText() or None,
+            )
+            self.progress.emit("Fraggler run completed successfully.")
+            
+            if report:  # If a report is generated
+                self.progress.emit("Report generated.")
+                # Create a temporary file to save the report
+                with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as temp_file:
+                    report.save(temp_file.name, title="test")  # Save report to the temp file
+                    report_path = temp_file.name  # Get the path of the temp file
+                    self.report_generated.emit(report_path)  # Emit the path of the temp file
+        except Exception as e:
+            self.error.emit(str(e))
+        finally:
+            self.finished.emit()
+
 class MainWindowLoggingHandler(logging.Handler):
     def __init__(self, log_method):
         super().__init__()
         self.log_method = log_method
 
     def emit(self, record):
-        print(record)
         message = self.format(record)
         levelname = record.levelname
         asctime = record.asctime
@@ -377,13 +468,14 @@ class MainWindowLoggingHandler(logging.Handler):
 
 
 def run():
-    print("Starting QApplication...")
     app = QApplication(sys.argv)
-    print("Setting style to fusion...")
     app.setStyle("fusion")
     window = MainWindow()
     window.show()
+    logger = log_config.get_logger("FragglerGUI")
+    print(fraggler.ASCII_ART)
     try:
+        logger.info("Welcome to Fraggler GUI, load a FSA file to get started.")
         sys.exit(app.exec())
     except Exception as e:
         print(f"Error: {e}")

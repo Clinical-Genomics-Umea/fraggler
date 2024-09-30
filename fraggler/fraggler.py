@@ -1422,6 +1422,7 @@ def runFraggler(
         search_peaks_start=search_peaks_start,
         peak_area_model=peak_area_model,
     )
+    print(f"Report returned: {report}")
     return report
 
 def write_log(file, *text):
@@ -1869,6 +1870,7 @@ def main(
     search_peaks_start,
     peak_area_model,
 ):
+    report = None
     today = datetime.today().strftime("%Y-%m-%d %H:%M:%S")
     FAILED_FILES = []
     PEAK_TABLES = []
@@ -2149,7 +2151,7 @@ def main(
     )
 
     print_green("Fraggler done!")
-    return report
+    return report if report else no_peaks_report
 
 
 if __name__ == "__main__":
