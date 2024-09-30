@@ -1,23 +1,17 @@
 import os
 import platform
-import subprocess
 import sys
 import tempfile
+# from .fraggler import fraggler
+from fraggler import fraggler_gui_elements as Ui_MainWindow, log_config, ladders, fraggler
+# from . import fraggler_gui_elements as Ui_MainWindow, log_config, ladders
 
 from PySide6.QtCore import QThread, Signal, QObject
-from bokeh.embed import components
-
-import PySide6
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtUiTools import QUiLoader
 import logging
-import fraggler_gui_elements as Ui_MainWindow
-import fraggler
-import log_config
-import ladders
-import panel as pn
 from PySide6.QtWebEngineCore import QWebEngineSettings  # Add this line
 
 
@@ -64,7 +58,7 @@ class MainWindow(QMainWindow):
 
     def display_report(self, report_path):
         """Display the generated report in QWebEngineView."""
-        self.logger.info(f"Generated report path: {report_path}")
+        self.logger.info(f"Generated report temporary path: {report_path}")
         self.ui.webEngineView.load(QUrl.fromLocalFile(report_path))
         self.ui.webEngineView.show()
 
@@ -292,65 +286,6 @@ class MainWindow(QMainWindow):
         return True
 
     ############### RUN FRAGGLER CLI ###############
-    # def runFraggler(self):
-
-        if not self.validateEntries():
-            self.logger.info("Invalid entries...")
-            return
-
-        class RunFragglerThread(QThread):
-            def __init__(self, parent):
-                super().__init__()
-                self.parent = parent
-
-            def run(self):
-                self.parent.disableButtons()
-
-                self.parent.logger.info(
-                    "Running fraggler with type=%s, sampleChannel=%s, peakStart=%s, minRatio=%s, peakAreaModel=%s, customPeaks=%s, ladder=%s, minDistanceBetweenPeaks=%s, minDistSizeStandard=%s, minPeakHeight=%s, distBetweenAssays=%s, outputFolder=%s",
-                    self.parent.ui.typeComboBox.currentText(),
-                    self.parent.ui.sampleChannelInput.text(),
-                    self.parent.ui.peakStartInput.text(),
-                    self.parent.ui.minPeakRatioInput.text(),
-                    self.parent.ui.peakModelComboBox.currentText(),
-                    self.parent.ui.customPeaksInput.text(),
-                    self.parent.ui.ladderComboBox.currentText(),
-                    self.parent.ui.minDistBetweenPeaksInput.text(),
-                    self.parent.ui.minHeightPeakInput.text(),
-                    self.parent.ui.minPeakHeightInput.text(),
-                    self.parent.ui.minDistAssaysInput.text(),
-                    self.parent.ui.outputFolderInput.text()
-                )
-
-                # Run fraggler
-                try:
-                    report = fraggler.runFraggler(
-                        type=self.parent.ui.typeComboBox.currentText(),
-                        fsa=self.parent.fp,
-                        output=self.parent.ui.outputFolderInput.text() if self.parent.ui.outputFolderInput.text() else None,
-                        ladder=self.parent.ui.ladderComboBox.currentText() if self.parent.ui.ladderComboBox.currentText() else None,
-                        sample_channel=self.parent.ui.sampleChannelInput.text() if self.parent.ui.sampleChannelInput.text() else None,
-                        min_distance_between_peaks=int(self.parent.ui.minDistBetweenPeaksInput.text()) if self.parent.ui.minDistBetweenPeaksInput.text() else None,
-                        min_size_standard_height=int(self.parent.ui.minHeightPeakInput.text()) if self.parent.ui.minHeightPeakInput.text() else None,
-                        custom_peaks=self.parent.ui.customPeaksInput.text() if self.parent.ui.customPeaksInput.text() else None,
-                        peak_height_sample_data=int(self.parent.ui.minPeakHeightInput.text()) if self.parent.ui.minPeakHeightInput.text() else None,
-                        min_ratio_to_allow_peak=float(self.parent.ui.minPeakRatioInput.text()) if self.parent.ui.minPeakRatioInput.text() else None,
-                        distance_between_assays=int(self.parent.ui.minDistAssaysInput.text()) if self.parent.ui.minDistAssaysInput.text() else None,
-                        search_peaks_start=int(self.parent.ui.peakStartInput.text()) if self.parent.ui.peakStartInput.text() else None,
-                        peak_area_model=self.parent.ui.peakModelComboBox.currentText() if self.parent.ui.peakModelComboBox.currentText() else None,
-                    )
-
-                except Exception as e:
-                    self.parent.logger.error(
-                        "Error occurred while running fraggler: %s", str(e)
-                    )
-                finally:
-                    self.parent.enableButtons()
-                    # Create and start the thread
-        self.thread = RunFragglerThread(self)
-        self.thread.start()
-    
-    
     def runFraggler(self):
         if not self.validateEntries():
             self.logger.info("Invalid entries...")
@@ -377,9 +312,6 @@ class MainWindow(QMainWindow):
 
         # Start the thread
         self.thread.start()
-
-    def handle_error(self, error_message):
-        self.logger.error("Error occurred while running fraggler: %s", error_message)
 
     def report_progress(self, message):
         self.logger.info(message)
