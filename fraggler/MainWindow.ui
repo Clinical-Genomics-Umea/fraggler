@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>786</width>
-    <height>629</height>
+    <height>832</height>
    </rect>
   </property>
   <property name="font">
@@ -105,16 +105,6 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QTreeView" name="treeView_2">
-           <property name="maximumSize">
-            <size>
-             <width>200</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <property name="leftMargin">
             <number>0</number>
@@ -127,7 +117,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>200</height>
+               <height>400</height>
               </size>
              </property>
              <property name="url">
@@ -139,6 +129,9 @@
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <property name="sizeConstraint">
+              <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
+             </property>
              <property name="leftMargin">
               <number>0</number>
              </property>
@@ -168,7 +161,7 @@
                   <number>0</number>
                  </property>
                  <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_9">
+                  <layout class="QVBoxLayout" name="verticalLayout_6">
                    <property name="leftMargin">
                     <number>0</number>
                    </property>
@@ -199,6 +192,85 @@
                      </property>
                     </widget>
                    </item>
+                   <item>
+                    <widget class="QLabel" name="ladderLabel">
+                     <property name="font">
+                      <font>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Ladder</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QComboBox" name="ladderComboBox">
+                     <property name="font">
+                      <font>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="toolTip">
+                      <string>Which ladder to use.</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="peakAreaModelLabel">
+                     <property name="font">
+                      <font>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Peak Finding Model</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QComboBox" name="peakModelComboBox">
+                     <property name="font">
+                      <font>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="toolTip">
+                      <string>Which peak finding model to use</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="outputLabel">
+                     <property name="font">
+                      <font>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Output Folder Name</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="outputFolderInput">
+                     <property name="font">
+                      <font>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="toolTip">
+                      <string>Output folder name (must be unique)</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
                    <item>
                     <widget class="QLabel" name="sampleChannelLabel">
                      <property name="font">
@@ -284,30 +356,6 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="peakAreaModelLabel">
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Peak Finding Model</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QComboBox" name="peakModelComboBox">
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                      </font>
-                     </property>
-                     <property name="toolTip">
-                      <string>Which peak finding model to use</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
                     <widget class="QLabel" name="customPeaksLabel">
                      <property name="font">
                       <font>
@@ -338,30 +386,6 @@
                    <property name="leftMargin">
                     <number>0</number>
                    </property>
-                   <item>
-                    <widget class="QLabel" name="ladderLabel">
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Ladder</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QComboBox" name="ladderComboBox">
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                      </font>
-                     </property>
-                     <property name="toolTip">
-                      <string>Which ladder to use.</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item>
                     <widget class="QLabel" name="minDistanceBetweenPeaksLabel">
                      <property name="font">
@@ -470,30 +494,6 @@
                      </property>
                     </widget>
                    </item>
-                   <item>
-                    <widget class="QLabel" name="outputLabel">
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Output Folder Name</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="outputFolderInput">
-                     <property name="font">
-                      <font>
-                       <pointsize>10</pointsize>
-                      </font>
-                     </property>
-                     <property name="toolTip">
-                      <string>Output folder name (must be unique)</string>
-                     </property>
-                    </widget>
-                   </item>
                   </layout>
                  </item>
                 </layout>
@@ -514,6 +514,12 @@
              </item>
              <item>
               <widget class="QListWidget" name="listWidget">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <pointsize>8</pointsize>

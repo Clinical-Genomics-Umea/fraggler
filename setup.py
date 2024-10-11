@@ -10,7 +10,7 @@ setuptools.setup(
     version="3.0.3",
     description="Fragment Analysis package in python!",
     url="https://github.com/willros/fraggler",
-    author="William Rosenbaum and Pär Larsson",
+    author="William Rosenbaum and Pär Larsson - GUI by Thad Sandidge",
     author_email="william.rosenbaum@umu.se",
     license="MIT",
     packages=setuptools.find_packages(),
@@ -29,6 +29,8 @@ setuptools.setup(
         "altair==5.3.0",
         "setuptools",
         "pandas-flavor==0.6.0",
+        "PySide6==6.7.2"
+
     ],
-    entry_points={"console_scripts": ["fraggler=fraggler.fraggler:cli"]},
+    entry_points={"console_scripts": ["fraggler=fraggler.fraggler:cli", "fraggler-gui=fraggler.fraggler_gui:run"]},
 )

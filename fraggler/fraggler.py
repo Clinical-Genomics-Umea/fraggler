@@ -25,7 +25,7 @@ import panel as pn
 import pandas_flavor as pf
 import matplotlib  # Import matplotlib
 import sys
-from log_config import get_logger
+from .log_config import get_logger
 
 class bcolors:
     OKBLUE = "\033[94m"
@@ -36,7 +36,9 @@ class bcolors:
     ENDC = "\033[0m"
     UNDERLINE = "\033[4m"
 
-
+CHART_WIDTH = 600
+CHART_HEIGHT = 400
+SUBTITLE_HEIGHT = 50
 
 logger = get_logger(__name__)
 
@@ -45,7 +47,7 @@ def print_tty(func):
         prefix = kwargs.get(
             "prefix", func.__defaults__[0] if func.__defaults__ else "[INFO]"
         )
-        if sys.stdout.isatty():
+        if sys.stdout and sys.stdout.isatty():
             func(*args, prefix=prefix)
         else:
             # Use the appropriate log level based on the prefix
@@ -91,7 +93,7 @@ if platform.system() == "Windows":
     matplotlib.use("agg")
 
 
-from ladders import LADDERS
+from .ladders import LADDERS
 
 
 ### UTILITY FUNCTIONS ###
@@ -198,13 +200,11 @@ def get_files(in_path: str) -> list[Path]:
 def file_exists(file):
     if not Path(file).exists():
         logger.error(f"{file} does not exist!")
-        sys.exit(1)
 
 
 def folder_exists(folder):
     if Path(folder).exists():
         logger.error(f"{folder} already exist!")
-        sys.exit(1)
 
 
 ASCII_ART = f"""
@@ -221,7 +221,7 @@ ASCII_ART = f"""
 
 
 def print_ascii_art(text):
-    if sys.stdout.isatty():
+    if sys.stdout and sys.stdout.isatty():
         print(f"{bcolors.OKBLUE}{text}{bcolors.ENDC}")
     else:
         return
@@ -662,8 +662,8 @@ def plot_fsa_data(fsa) -> list:
                 alt.Color("channel:N"),
             )
             .properties(
-                width=800,
-                height=500,
+                width=CHART_WIDTH,
+                height=CHART_HEIGHT,
             )
             .interactive()
         )
@@ -678,8 +678,8 @@ def plot_fsa_data(fsa) -> list:
             alt.Color("channel:N"),
         )
         .properties(
-            width=800,
-            height=500,
+            width=CHART_WIDTH,
+            height=CHART_HEIGHT,
         )
         .interactive()
     )
@@ -1422,7 +1422,6 @@ def runFraggler(
         search_peaks_start=search_peaks_start,
         peak_area_model=peak_area_model,
     )
-    print(f"Report returned: {report}")
     return report
 
 def write_log(file, *text):
@@ -1519,7 +1518,7 @@ def generate_peak_report(fsa):
     channel_header = header(
         text="## Plot of channels",
         bg_color="#04c273",
-        height=80,
+        height=SUBTITLE_HEIGHT,
         textalign="left",
     )
     # PLOT
@@ -1534,13 +1533,14 @@ def generate_peak_report(fsa):
     peaks_header = header(
         text="## Plot of Peaks",
         bg_color="#04c273",
-        height=80,
+        height=SUBTITLE_HEIGHT,
         textalign="left",
     )
 
     # PLOT
+    logger.info("Plotting all found peaks")
     peaks_plot = plot_all_found_peaks(fsa)
-    peaks_pane = pn.pane.Matplotlib(peaks_plot, name="Peaks")
+    peaks_pane = pn.pane.Matplotlib(peaks_plot, width=CHART_WIDTH, height=CHART_HEIGHT, name="Peaks")
 
     # Section
     peaks_tab = pn.Tabs(
@@ -1552,7 +1552,7 @@ def generate_peak_report(fsa):
     ladder_header = header(
         text="## Information about the ladder",
         bg_color="#04c273",
-        height=80,
+        height=SUBTITLE_HEIGHT,
         textalign="left",
     )
     # Ladder peak plot
@@ -1577,7 +1577,7 @@ def generate_peak_report(fsa):
 
     ### ----- Peaks dataframe ----- ###
     dataframe_header = header(
-        text="## Peaks Table", bg_color="#04c273", height=80, textalign="left"
+        text="## Peaks Table", bg_color="#04c273", height=SUBTITLE_HEIGHT, textalign="left"
     )
     # Create dataframe
     df = fsa.identified_sample_data_peaks.assign(file_name=fsa.file_name)[
@@ -1610,9 +1610,8 @@ def generate_peak_report(fsa):
         ("Peaks Table", dataframe_section),
         tabs_location="left",
     )
+    logger.info("Creating report")
     report = pn.Column(
-        head,
-        pn.layout.Divider(),
         all_tabs,
     )
 
@@ -1628,7 +1627,7 @@ def generate_area_report(fsa):
     channel_header = header(
         text="## Plot of channels",
         bg_color="#04c273",
-        height=80,
+        height=SUBTITLE_HEIGHT,
         textalign="left",
     )
     # PLOT
@@ -1643,7 +1642,7 @@ def generate_area_report(fsa):
     peaks_header = header(
         text="## Plot of Peaks",
         bg_color="#04c273",
-        height=80,
+        height=SUBTITLE_HEIGHT,
         textalign="left",
     )
 
@@ -1661,7 +1660,7 @@ def generate_area_report(fsa):
     ladder_header = header(
         text="## Information about the ladder",
         bg_color="#04c273",
-        height=80,
+        height=SUBTITLE_HEIGHT,
         textalign="left",
     )
     # Ladder peak plot
@@ -1686,7 +1685,7 @@ def generate_area_report(fsa):
 
     ### ----- Areas Information ----- ###
     areas_header = header(
-        text="## Peak Areas", bg_color="#04c273", height=80, textalign="left"
+        text="## Peak Areas", bg_color="#04c273", height=SUBTITLE_HEIGHT, textalign="left"
     )
     areas_tab = pn.Tabs()
     area_plots_list = plot_areas(fsa)
@@ -1700,7 +1699,7 @@ def generate_area_report(fsa):
 
     ### ----- Peaks DataFrame ----- ###
     dataframe_header = header(
-        text="## Peaks Table", bg_color="#04c273", height=80, textalign="left"
+        text="## Peaks Table", bg_color="#04c273", height=SUBTITLE_HEIGHT, textalign="left"
     )
 
     df = fsa.identified_sample_data_peaks[
@@ -1735,9 +1734,7 @@ def generate_area_report(fsa):
         tabs_location="left",
     )
     report = pn.Column(
-        head,
-        pn.layout.Divider(),
-        all_tabs,
+        all_tabs
     )
 
     return report
@@ -1751,7 +1748,7 @@ def generate_no_peaks_report(fsa):
     channel_header = header(
         text="## Plot of channels",
         bg_color="#04c273",
-        height=80,
+        height=SUBTITLE_HEIGHT,
         textalign="left",
     )
     # PLOT
@@ -1773,9 +1770,7 @@ def generate_no_peaks_report(fsa):
         tabs_location="left",
     )
     report = pn.Column(
-        head,
-        pn.layout.Divider(),
-        all_tabs,
+        all_tabs
     )
 
     return report
