@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'MainWindowCHlslk.ui'
+## Form generated from reading UI file 'MainWindowogzUwB.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
@@ -27,7 +27,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(786, 832)
+        MainWindow.resize(786, 833)
         font = QFont()
         font.setPointSize(15)
         MainWindow.setFont(font)
@@ -96,12 +96,18 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, -1, -1, -1)
+        self.fileListWidget = QListWidget(self.frame_3)
+        self.fileListWidget.setObjectName(u"fileListWidget")
+
+        self.horizontalLayout.addWidget(self.fileListWidget)
+
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, -1, -1)
         self.webEngineView = QWebEngineView(self.frame_3)
         self.webEngineView.setObjectName(u"webEngineView")
-        self.webEngineView.setMinimumSize(QSize(0, 350))
+        self.webEngineView.setMinimumSize(QSize(0, 400))
         self.webEngineView.setUrl(QUrl(u"about:blank"))
 
         self.verticalLayout_3.addWidget(self.webEngineView)

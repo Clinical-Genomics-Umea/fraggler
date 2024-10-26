@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>786</width>
-    <height>832</height>
+    <height>833</height>
    </rect>
   </property>
   <property name="font">
@@ -104,6 +104,12 @@
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QListWidget" name="fileListWidget"/>
+         </item>
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <property name="leftMargin">
