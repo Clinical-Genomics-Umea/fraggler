@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'MainWindowogzUwB.ui'
+## Form generated from reading UI file 'MainWindowAYovIj.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
@@ -27,7 +27,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(786, 833)
+        MainWindow.resize(1187, 825)
         font = QFont()
         font.setPointSize(15)
         MainWindow.setFont(font)
@@ -46,6 +46,8 @@ class Ui_MainWindow(object):
         self.action_about.setObjectName(u"action_about")
         self.actionToggle_Dark_Light = QAction(MainWindow)
         self.actionToggle_Dark_Light.setObjectName(u"actionToggle_Dark_Light")
+        self.actionLoad_FSA_Directory = QAction(MainWindow)
+        self.actionLoad_FSA_Directory.setObjectName(u"actionLoad_FSA_Directory")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setAcceptDrops(False)
@@ -96,11 +98,41 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(0, -1, -1, -1)
+        self.horizontalLayout.setContentsMargins(0, 0, -1, -1)
+        self.verticalLayout_7 = QVBoxLayout()
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.verticalLayout_7.setContentsMargins(0, -1, -1, -1)
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(-1, 0, 0, -1)
+        self.selectFileButton = QPushButton(self.frame_3)
+        self.selectFileButton.setObjectName(u"selectFileButton")
+        font3 = QFont()
+        font3.setPointSize(10)
+        self.selectFileButton.setFont(font3)
+        icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.WindowNew))
+        self.selectFileButton.setIcon(icon)
+
+        self.horizontalLayout_3.addWidget(self.selectFileButton)
+
+        self.selectDirectoryButton = QPushButton(self.frame_3)
+        self.selectDirectoryButton.setObjectName(u"selectDirectoryButton")
+        self.selectDirectoryButton.setFont(font3)
+        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.FolderOpen))
+        self.selectDirectoryButton.setIcon(icon1)
+
+        self.horizontalLayout_3.addWidget(self.selectDirectoryButton)
+
+
+        self.verticalLayout_7.addLayout(self.horizontalLayout_3)
+
         self.fileListWidget = QListWidget(self.frame_3)
         self.fileListWidget.setObjectName(u"fileListWidget")
 
-        self.horizontalLayout.addWidget(self.fileListWidget)
+        self.verticalLayout_7.addWidget(self.fileListWidget)
+
+
+        self.horizontalLayout.addLayout(self.verticalLayout_7)
 
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
@@ -115,18 +147,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
-        self.horizontalLayout_2.setContentsMargins(0, 0, -1, -1)
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, -1)
         self.verticalLayout_8 = QVBoxLayout()
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
+        self.verticalLayout_8.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
         self.verticalLayout_8.setContentsMargins(0, -1, -1, -1)
-        self.selectFileButton = QPushButton(self.frame_3)
-        self.selectFileButton.setObjectName(u"selectFileButton")
-        font3 = QFont()
-        font3.setPointSize(10)
-        self.selectFileButton.setFont(font3)
-
-        self.verticalLayout_8.addWidget(self.selectFileButton)
-
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.horizontalLayout_6.setContentsMargins(0, -1, -1, -1)
@@ -316,9 +341,12 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
 
+        self.verticalLayout_3.setStretch(0, 6)
+        self.verticalLayout_3.setStretch(1, 3)
 
         self.horizontalLayout.addLayout(self.verticalLayout_3)
 
+        self.horizontalLayout.setStretch(1, 8)
 
         self.verticalLayout_5.addLayout(self.horizontalLayout)
 
@@ -328,7 +356,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 786, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1187, 22))
         font5 = QFont()
         font5.setPointSize(9)
         self.menubar.setFont(font5)
@@ -345,6 +373,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
         self.menuFile.addAction(self.action_loadFSAFile)
+        self.menuFile.addAction(self.actionLoad_FSA_Directory)
         self.menuHelp.addAction(self.actionToggle_Dark_Light)
         self.menuHelp.addSeparator()
         self.menuHelp.addAction(self.action_about)
@@ -365,9 +394,17 @@ class Ui_MainWindow(object):
         self.actionStop_HDLCD.setText(QCoreApplication.translate("MainWindow", u"Stop HDLCD", None))
         self.action_about.setText(QCoreApplication.translate("MainWindow", u"About", None))
         self.actionToggle_Dark_Light.setText(QCoreApplication.translate("MainWindow", u"Toggle Dark/Light Mode", None))
+        self.actionLoad_FSA_Directory.setText(QCoreApplication.translate("MainWindow", u"Load FSA Directory", None))
         self.label_description.setText(QCoreApplication.translate("MainWindow", u"Fraggler GUI", None))
         self.label_icon.setText(QCoreApplication.translate("MainWindow", u"[ICON]", None))
+#if QT_CONFIG(tooltip)
+        self.selectFileButton.setToolTip(QCoreApplication.translate("MainWindow", u"Select a single FSA file for processing", None))
+#endif // QT_CONFIG(tooltip)
         self.selectFileButton.setText(QCoreApplication.translate("MainWindow", u"Select File", None))
+#if QT_CONFIG(tooltip)
+        self.selectDirectoryButton.setToolTip(QCoreApplication.translate("MainWindow", u"Select a directory that contains FSA files for bulk processing", None))
+#endif // QT_CONFIG(tooltip)
+        self.selectDirectoryButton.setText(QCoreApplication.translate("MainWindow", u"Select Directory", None))
         self.typeLabel.setText(QCoreApplication.translate("MainWindow", u"Type", None))
 #if QT_CONFIG(tooltip)
         self.typeComboBox.setToolTip(QCoreApplication.translate("MainWindow", u"Fraggler area or fraggler peak.", None))
