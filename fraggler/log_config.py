@@ -1,10 +1,6 @@
 import logging
 
-# Configure the logger
-
-# It should be higher than INFO (which is 20) but lower than WARNING (which is 30)
 SUCCESS_LEVEL_NUM = 25
-
 
 def success(self, message, *args, **kws):
     if self.isEnabledFor(SUCCESS_LEVEL_NUM):
@@ -31,21 +27,23 @@ def get_logger(name):
 def set_global_level(level):
     logging.getLogger().setLevel(level)
 
+# Custom Logger Class
+class CustomLogger:
+    def __init__(self, original_logger, log_callback=None):
+        self.original_logger = original_logger
+        self.log_callback = log_callback
 
-def format_log_message(message, mdefs, sending):
-    # Retrieve the message definition based on the message type
-    mdef = mdefs.get(message.mid, None)
-    if not mdef:
-        return "Unknown message type"
-    
-    # Start building the formatted string
-    action = "Sending" if sending else "Receiving"
-    formatted_str = f"{action} Message - Type: {mdef['name']} - "
+    def info(self, message):
+        self.original_logger.info(message)
+        if self.log_callback:
+            self.log_callback(message)
 
-    # Iterate over the keys and values of message.msg and add them to the formatted string
-    for key, value in message.msg.items():
-        if key == "Payload" or key == "DU":
-            continue
-        formatted_str += f"{key}: {value} "
+    def success(self, message):
+        self.original_logger.success(message)
+        if self.log_callback:
+            self.log_callback(message)
 
-    return formatted_str
+# Function to set up the custom logger
+def setup_custom_logger(log_callback=None):
+    logger = get_logger(__name__)
+    return CustomLogger(logger, log_callback)

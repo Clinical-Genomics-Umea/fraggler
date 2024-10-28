@@ -1,0 +1,1 @@
+fraggler -t peak -f ../data/I101B18G04PR2_B01.fsa -l LIZ_500 -sc DATA2 -o test_cli

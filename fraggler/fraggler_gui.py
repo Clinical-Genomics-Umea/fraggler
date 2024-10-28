@@ -1,19 +1,27 @@
 import os
 import platform
 import sys
-import tempfile
+import glob
+import traceback
+import time
 # from .fraggler import fraggler
 from fraggler import fraggler_gui_elements as Ui_MainWindow, log_config, ladders, fraggler
 # from . import fraggler_gui_elements as Ui_MainWindow, log_config, ladders
 
 from PySide6.QtCore import QThread, Signal, QObject
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox, QLabel, QVBoxLayout, QDialog, QListWidgetItem
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtUiTools import QUiLoader
 import logging
 from PySide6.QtWebEngineCore import QWebEngineSettings  # Add this line
+import PySide6.QtWidgets as QtWidgets  # Add this line
+from PySide6.QtCore import QTimer
 
+
+import logging
+from PySide6.QtWidgets import QPlainTextEdit
+import PySide6.QtCore as QtCore
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -22,6 +30,8 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.subprocess = None  # Initialize subprocess attribute
         self.fp = None
+        self.loaded_files = []
+        self.output_folder = None
 
         # Check if the system theme is dark or light
         self.system_theme = self.get_system_theme()
@@ -31,11 +41,13 @@ class MainWindow(QMainWindow):
         else:
             self.apply_light_theme()
 
+ # Add it to the layout
+
         self.setupLogging()
         self.initMenuActions()
         self.initButtonActions()
         self.initComboBoxActions()
-
+        # add widget to layout
         self.initIcons()
         self.setupStatusBar()
         self.update_status_indicator()
@@ -46,38 +58,35 @@ class MainWindow(QMainWindow):
             10000
         )  # Timer interval set to 10000 milliseconds (10 second)
 
-        # Setup the worker and thread
-        self.worker = Worker(parent=self)
-        self.worker = Worker(parent=self)
-        self.worker.report_generated.connect(self.display_report)
-        self.worker.error.connect(self.handle_error)
-        self.worker.finished.connect(self.enableButtons)
+
         self.ui.webEngineView.settings().setAttribute(QWebEngineSettings.LocalContentCanAccessFileUrls, True)
         self.ui.webEngineView.settings().setAttribute(QWebEngineSettings.LocalContentCanAccessRemoteUrls, True)
         self.showMaximized()
-
-    def display_report(self, report_path):
+    
+    def display_report(self, file_name):
         """Display the generated report in QWebEngineView."""
-        self.logger.info(f"Generated report temporary path: {report_path}")
-        self.ui.webEngineView.load(QUrl.fromLocalFile(report_path))
-        self.ui.webEngineView.show()
+        if not self.output_folder:
+            self.logger.info(f"Run Fraggler to access file reports")
+            return
+        try:
+            report_pattern = f"{self.output_folder}/{file_name}_*.html"
+            report_files = glob.glob(report_pattern)
+            if report_files:
+                report_path = report_files[0]
+                self.ui.webEngineView.load(QUrl.fromLocalFile(report_path))
+                self.ui.webEngineView.show()
+                self.logger.info(f"Showing report: {report_path}")
+            else:
+                raise FileNotFoundError
+        except FileNotFoundError:
+            self.logger.error(f"Unable to find fraggler report for {file_name} in {self.output_folder}")
+            self.logger.info("Reselect directory and run Fraggler again if issue persists.")
 
     def handle_error(self, error_message):
         """Handle error if any occurs."""
         QMessageBox.critical(self, "Error", error_message)
 
     ################## INITIALIZATION ##################
-    def load_ui(self):
-        loader = QUiLoader()
-        loader.registerCustomWidget(QMainWindow)
-        path = os.path.join(os.path.dirname(__file__), "MainWindow.ui")
-        ui_file = QFile(path)
-        ui_file.open(QFile.ReadOnly)
-        ui = loader.load(ui_file, self)
-        self.setCentralWidget(ui)  # Set the loaded UI as the central widget
-        ui_file.close()
-        return ui
-
     def initMenuActions(self):
         self.ui.action_loadFSAFile.triggered.connect(self.loadFSAFile)
         self.ui.actionToggle_Dark_Light.triggered.connect(self.toggle_theme)
@@ -85,16 +94,13 @@ class MainWindow(QMainWindow):
 
     def initButtonActions(self):
         self.ui.selectFileButton.clicked.connect(self.loadFSAFile)
-        self.ui.runFragglerButton.clicked.connect(self.runFraggler)
-
+        self.ui.selectDirectoryButton.clicked.connect(self.loadFSADirectory)    
+        self.ui.fileListWidget.itemClicked.connect(self.onFileListItemClicked)
+        self.ui.runFragglerButton.clicked.connect(self.start)
 
     def initComboBoxActions(self):
-        # type is area or peak
-        # Populate the typeComboBox with TYPES
         self.ui.typeComboBox.addItems(fraggler.TYPES)
-        # Populate the peakModelComboBox with PEAK_AREA_MODELS
         self.ui.peakModelComboBox.addItems(fraggler.PEAK_AREA_MODELS)
-        # Assuming LADDERS is a dictionary and you want to populate ladderComboBox with its keys
         self.ui.ladderComboBox.addItems(ladders.LADDERS.keys())
 
     def initIcons(self):
@@ -106,30 +112,32 @@ class MainWindow(QMainWindow):
             QIcon.Off,
         )
         self.setWindowIcon(self.icon)
-
         pixmap = QPixmap(os.path.join(os.path.dirname(__file__), "icons", "logo.png"))
-
         scaled_pixmap = pixmap.scaledToHeight(50, Qt.SmoothTransformation)
-
-        # Set the scaled pixmap to the label
         self.ui.label_icon.setPixmap(scaled_pixmap)
 
+    ############### LOGGING ###############
+    def log(self, msg, level="none", asctime="none", class_name="none"):
+        # Add the message to the status bar and list widget
+        self.statusBar().showMessage(msg)
+        msg = f"{asctime} \t {class_name} \t {msg}"
+        item = QListWidgetItem(msg)
+        self.ui.listWidget.insertItem(0, item)
+        
     def setupLogging(self):
-        self.logger = log_config.get_logger("FragglerGUI")
-        # Create a logging handler that will log to the list widget
+        # Configure logging to use the QTextEditLogger
+        self.logger = logging.getLogger("FragglerGUI")
+        self.logger.setLevel(logging.INFO)
         self.log_handler = MainWindowLoggingHandler(self.log)
-        # Add the handler to the root logger
         logging.getLogger().addHandler(self.log_handler)
 
     def get_system_theme(self):
         self.system = platform.system()
         if self.system == "Windows":
             import winreg
-
             registry_key = winreg.HKEY_CURRENT_USER
             sub_key = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
             value_name = "AppsUseLightTheme"
-
             try:
                 key = winreg.OpenKey(registry_key, sub_key, 0, winreg.KEY_READ)
                 value = winreg.QueryValueEx(key, value_name)
@@ -161,8 +169,6 @@ class MainWindow(QMainWindow):
         palette.setColor(QPalette.HighlightedText, Qt.white)
         self.setPalette(palette)
         self.system_theme = "dark"
-
-
     def apply_light_theme(self):
         light_palette = QPalette()
         light_palette.setColor(QPalette.Window, QColor(240, 240, 240))
@@ -180,8 +186,6 @@ class MainWindow(QMainWindow):
         light_palette.setColor(QPalette.HighlightedText, Qt.white)
         self.setPalette(light_palette)
         self.system_theme = "light"
-
-
     def toggle_theme(self):
         if self.system_theme == "dark":
             self.apply_light_theme()
@@ -211,7 +215,6 @@ class MainWindow(QMainWindow):
                     "Version: 1.0.0"
                 )
                 self.layout.addWidget(self.label)
-
         dialog = AboutDialog()
         dialog.setWindowIcon(self.icon)
         if self.system_theme == "dark":
@@ -224,45 +227,75 @@ class MainWindow(QMainWindow):
             )
         dialog.exec_()
 
-    def closeEvent(self, event):
-        # This method is called when the window is closed
-        if self.subprocess:
-            self.subprocess.kill()
-            self.subprocess.wait()
-        event.accept()
-
-    ############### Enable/Disable ###############
+    ############### ENABLE/DISABLE ###############
     def enableButtons(self):
         self.ui.runFragglerButton.setEnabled(True)
         self.ui.selectFileButton.setEnabled(True)
+        self.display_report(self.loaded_files[0])
+
 
     def disableButtons(self):
         self.ui.runFragglerButton.setEnabled(False)
         self.ui.selectFileButton.setEnabled(False)
 
     ############### LOAD FSA FILE ###############
-    def loadFSAFile(self, fp):
-        if not fp:
-            fp = self.getValidFilePath()
 
-        # Update label_fp with the file path
-        self.logger.info("Loading FSA file: %s", fp)
+    def loadFSAFile(self):
+        """Load a single FSA file and display it in the file list widget."""
+        options = QFileDialog.Options()
+        options |= QFileDialog.ReadOnly
 
-        self.fp = fp
-        # just include the filename not the complete path in the display
-        self.ui.selectFileButton.setText(f"File loaded: {os.path.basename(fp)}")
-
-    def getValidFilePath(
-        self,
-        filter="All files (*);;FSA files (*.fsa)",
-    ):
-
-        fp, _ = QFileDialog.getOpenFileName(
-            parent=self,
-            filter=filter,
+        # Open file dialog to select a single FSA file
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Select FSA File", "", "FSA Files (*.fsa);;All Files (*)", options=options
         )
 
-        return fp
+        if not file_path:
+            return
+
+        # Clear previous items in fileListWidget and the loaded files list
+        self.ui.fileListWidget.clear()
+        self.loaded_files.clear()
+
+        # Process the selected file
+        file_name = os.path.basename(file_path)
+        self.ui.fileListWidget.addItem(file_name)
+        self.loaded_files.append(file_name)
+        self.logger.info(f"Loaded FSA file: {file_path}")
+        self.fp = file_path
+
+    def loadFSADirectory(self):
+        """Load all FSA files in a selected directory and display them in the file list widget."""
+        options = QFileDialog.Options()
+        options |= QFileDialog.ReadOnly
+
+        # Open directory dialog to select a directory
+        directory_path = QFileDialog.getExistingDirectory(
+            self, "Select Directory with FSA Files", "", options=options
+        )
+
+        if not directory_path:
+            return
+
+        # Clear previous items in fileListWidget and the loaded files list
+        self.ui.fileListWidget.clear()
+        self.loaded_files.clear()
+
+        # List all .fsa files in the selected directory
+        fsa_files = [
+            f for f in os.listdir(directory_path) if f.lower().endswith('.fsa')
+        ]
+        for fsa_file in fsa_files:
+            file_path = os.path.join(directory_path, fsa_file)
+            self.ui.fileListWidget.addItem(fsa_file)
+            self.loaded_files.append(fsa_file)
+            self.logger.info(f"Loaded FSA file from directory: {file_path}")
+        self.fp = directory_path
+
+    def onFileListItemClicked(self, item):
+        """Handle the click event for items in fileListWidget."""
+        self.logger.info(f"Selected FSA file: {item.text()}")
+        self.display_report(item.text())
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -285,78 +318,97 @@ class MainWindow(QMainWindow):
             return False
         return True
 
+
     ############### RUN FRAGGLER CLI ###############
+       
+    def reportProgress(self, message):
+        self.logger.info("Progress: %s", message)
+    
+    def start(self):
+        self.runFraggler()
+
     def runFraggler(self):
         if not self.validateEntries():
             self.logger.info("Invalid entries...")
             return
-        self.logger.info("Running fraggler with file %s", self.fp)
-        self.logger.info("Please wait, this will only take a moment...")
-        # Create a QThread object
-        self.thread = QThread()
-        # Create a worker object
+        self.logger.info("Running Fraggler with file %s", self.fp)
+        self.output_folder = os.path.join(os.getcwd(), self.ui.outputFolderInput.text())
+
+
+
+        # Set up worker and thread for running Fraggler
         self.worker = Worker(self)
-        # Move the worker to the thread
+        self.thread = QThread()
         self.worker.moveToThread(self.thread)
+
+
         # Connect signals and slots
         self.thread.started.connect(self.worker.run)
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.log_message.connect(self.reportProgress)
         self.worker.error.connect(self.handle_error)
-        self.worker.progress.connect(self.report_progress)
         self.worker.finished.connect(self.enableButtons)
-
-        # Connect the report_generated signal to the display_report slot
-        self.worker.report_generated.connect(self.display_report)
 
         # Start the thread
         self.thread.start()
 
-    def report_progress(self, message):
-        self.logger.info(message)
 
-
-    ############### LOGGING ###############
-    def log(self, msg, level="none", asctime="none", class_name="none"):
-        # Add the message to the status bar and list widget
-        self.statusBar().showMessage(msg)
-
-        # Add color to the message
-        msg = f"{asctime} \t {class_name} \t {msg}"
-        item = QListWidgetItem(msg)
-        level = level.lower()
-        if level == "error":
-            item.setForeground(QBrush(QColor("red")))
-        elif level == "warning":
-            item.setForeground(QBrush(QColor("orange")))
-        elif level == "success":
-            item.setForeground(QBrush(QColor("green")))
-        elif level == "info":
-            pass
-        elif level == "debug":
-            item.setForeground(QBrush(QColor("black")))
-        else:
-            # Default text color
-            pass
-
-        # if self.debug or level != "info":
-        self.ui.listWidget.insertItem(0, item)
-
+    def setLoading(self):
+        """Set the loading spinner HTML content in the QWebEngineView."""
+        loading_html = """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Loading...</title>
+            <style>
+                body {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    background-color: #f3f3f3;
+                }
+                .spinner {
+                    border: 16px solid #f3f3f3;
+                    border-top: 16px solid #3498db;
+                    border-radius: 50%;
+                    width: 120px;
+                    height: 120px;
+                    animation: spin 2s linear infinite;
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="spinner"></div>
+        </body>
+        </html>
+        """
+        self.ui.webEngineView.setHtml(loading_html)
+        self.ui.webEngineView.show()
+        QApplication.processEvents()  # Ensure the UI updates are processed
+        
 
 class Worker(QObject):
     finished = Signal()
     error = Signal(str)
-    progress = Signal(str)
-    report_generated = Signal(str)  # Emit the path of the temporary report file
+    log_message = Signal(str)  # New signal for logging messages
+
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
+        self.logger = logging.getLogger("FragglerGUI")
+
 
     def run(self):
-        self.parent.disableButtons()
-
         try:
             report = fraggler.runFraggler(
                 type=self.parent.ui.typeComboBox.currentText(),
@@ -373,15 +425,7 @@ class Worker(QObject):
                 search_peaks_start=int(self.parent.ui.peakStartInput.text() or 0),
                 peak_area_model=self.parent.ui.peakModelComboBox.currentText() or None,
             )
-            self.progress.emit("Fraggler run completed successfully.")
-            
-            if report:  # If a report is generated
-                self.progress.emit("Report generated.")
-                # Create a temporary file to save the report
-                with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as temp_file:
-                    report.save(temp_file.name, title="test")  # Save report to the temp file
-                    report_path = temp_file.name  # Get the path of the temp file
-                    self.report_generated.emit(report_path)  # Emit the path of the temp file
+            self.parent.logger.info("Fraggler run successful")
         except Exception as e:
             self.error.emit(str(e))
         finally:
@@ -406,7 +450,6 @@ def run():
     window = MainWindow()
     window.show()
     logger = log_config.get_logger("FragglerGUI")
-    print(fraggler.ASCII_ART)
     try:
         logger.info("Welcome to Fraggler GUI, load a FSA file to get started.")
         sys.exit(app.exec())
