@@ -29,6 +29,7 @@ Fraggler depends on:
 - biopython
 - panel
 - altair
+- PySide6
 
 ## Python API
 
@@ -56,7 +57,7 @@ options:
   -f FSA, --fsa FSA     fsa file to analyze
   -o OUTPUT, --output OUTPUT
                         Output folder
-  -l {LIZ,ROX,ORANGE,ROX500}, --ladder {LIZ,ROX,ORANGE,ROX500}
+  -l {LIZ,ROX,ORANGE,ROX500}, --ladder {LIZ,ROX,ORANGE,ROX500,LIZ_500}
                         Which ladder to use
   -sc SAMPLE_CHANNEL, --sample_channel SAMPLE_CHANNEL
                         Which sample channel to use. E.g: 'DATA1', 'DATA2'...

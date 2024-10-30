@@ -3,7 +3,7 @@ import platform
 import sys
 import glob
 
-from fraggler import fraggler_gui_elements as Ui_MainWindow, log_config, ladders, fraggler
+from . import fraggler_gui_elements as Ui_MainWindow, log_config, ladders, fraggler
 from PySide6.QtCore import QThread, Signal, QObject
 from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox, QLabel, QVBoxLayout, QDialog, QListWidgetItem
 from PySide6.QtCore import *
