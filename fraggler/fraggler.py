@@ -46,6 +46,7 @@ def print_fail(text, prefix="[ERROR]"):
 def print_summary(text, prefix="[SUMMARIZE]"):
     logger.info(f"{prefix}: {text}")
 
+print_green(f"Starting fraggler, importing libraries...")
 import numpy as np
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
