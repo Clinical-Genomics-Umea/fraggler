@@ -15,36 +15,31 @@ def print_tty(func):
         prefix = kwargs.get(
             "prefix", func.__defaults__[0] if func.__defaults__ else "[INFO]"
         )
-        if sys.stdout and sys.stdout.isatty():
+        if sys.stdout.isatty():
             func(*args, prefix=prefix)
         else:
-            # Use the appropriate log level based on the prefix
-            if "WARNING" in prefix:
-                logger.warning(f"{prefix}: {args[0]}")
-            elif "ERROR" in prefix:
-                logger.error(f"{prefix}: {args[0]}")
-            elif "SUMMARIZE" in prefix:
-                logger.info(f"{prefix}: {args[0]}")
-            else:
-                logger.info(f"{prefix}: {args[0]}")
+            print(f"{prefix}: {args[0]}")
 
     return wrapper
 
 @print_tty
 def print_green(text, prefix="[INFO]"):
-    logger.info(f"{prefix}: {text}")
+    print(f"{bcolors.OKGREEN}{prefix}: {text}{bcolors.ENDC}")
+
 
 @print_tty
 def print_warning(text, prefix="[WARNING]"):
-    logger.warning(f"{prefix}: {text}")
+    print(f"{bcolors.WARNING}{bcolors.UNDERLINE}{prefix}: {text}{bcolors.ENDC}")
+
 
 @print_tty
 def print_fail(text, prefix="[ERROR]"):
-    logger.error(f"{prefix}: {text}")
+    print(f"{bcolors.FAIL}{bcolors.UNDERLINE}{prefix}: {text}{bcolors.ENDC}")
+
 
 @print_tty
-def print_summary(text, prefix="[SUMMARIZE]"):
-    logger.info(f"{prefix}: {text}")
+def print_blue(text, prefix="[SUMMARIZE]"):
+    print(f"{bcolors.OKBLUE}{prefix}: {text}{bcolors.ENDC}")
 
 print_green(f"Starting fraggler, importing libraries...")
 import numpy as np
