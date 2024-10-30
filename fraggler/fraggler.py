@@ -1,31 +1,4 @@
 import sys
-import numpy as np
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import SplineTransformer
-from sklearn.metrics import mean_squared_error, r2_score
-from scipy.interpolate import UnivariateSpline
-from pathlib import Path
-from scipy import sparse
-from scipy.sparse import linalg
-from numpy.linalg import norm
-from Bio import SeqIO
-from scipy import signal
-import matplotlib.pyplot as plt
-import pandas as pd
-import altair as alt
-from lmfit.models import VoigtModel, GaussianModel, LorentzianModel
-import re
-from datetime import datetime
-import argparse
-import warnings
-import platform
-import panel as pn
-import pandas_flavor as pf
-import matplotlib  # Import matplotlib
-import sys
-from .log_config import get_logger
 
 class bcolors:
     OKBLUE = "\033[94m"
@@ -36,11 +9,6 @@ class bcolors:
     ENDC = "\033[0m"
     UNDERLINE = "\033[4m"
 
-CHART_WIDTH = 600
-CHART_HEIGHT = 400
-SUBTITLE_HEIGHT = 50
-
-logger = get_logger(__name__)
 
 def print_tty(func):
     def wrapper(*args, **kwargs):
@@ -78,13 +46,37 @@ def print_fail(text, prefix="[ERROR]"):
 def print_summary(text, prefix="[SUMMARIZE]"):
     logger.info(f"{prefix}: {text}")
 
-
-
-
+import numpy as np
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import SplineTransformer
+from sklearn.metrics import mean_squared_error, r2_score
+from scipy.interpolate import UnivariateSpline
+from pathlib import Path
+from scipy import sparse
+from scipy.sparse import linalg
+from numpy.linalg import norm
+from Bio import SeqIO
+from scipy import signal
+import matplotlib.pyplot as plt
+import pandas as pd
+import altair as alt
+from lmfit.models import VoigtModel, GaussianModel, LorentzianModel
+import re
+from datetime import datetime
+import argparse
+import warnings
+import platform
+import panel as pn
+import pandas_flavor as pf
+import matplotlib  # Import matplotlib
+import sys
+from .log_config import get_logger
 
 TYPES = ["area", "peak"]
 PEAK_AREA_MODELS = ["gauss", "voigt", "lorentzian"]
-
+logger = get_logger(__name__)
 
 
 warnings.filterwarnings("ignore")
@@ -662,8 +654,8 @@ def plot_fsa_data(fsa) -> list:
                 alt.Color("channel:N"),
             )
             .properties(
-                width=CHART_WIDTH,
-                height=CHART_HEIGHT,
+                width=800,
+                height=500,
             )
             .interactive()
         )
@@ -678,8 +670,8 @@ def plot_fsa_data(fsa) -> list:
             alt.Color("channel:N"),
         )
         .properties(
-            width=CHART_WIDTH,
-            height=CHART_HEIGHT,
+            width=800,
+            height=500,
         )
         .interactive()
     )
@@ -1406,7 +1398,7 @@ def runFraggler(
     )
     logger.info(command)
 
-    report = main(
+    main(
         command,
         sub_command=type,
         fsa=fsa,
@@ -1422,7 +1414,6 @@ def runFraggler(
         search_peaks_start=search_peaks_start,
         peak_area_model=peak_area_model,
     )
-    return report
 
 def write_log(file, *text):
     with open(file, "a+") as f:
@@ -1518,7 +1509,7 @@ def generate_peak_report(fsa):
     channel_header = header(
         text="## Plot of channels",
         bg_color="#04c273",
-        height=SUBTITLE_HEIGHT,
+        height=80,
         textalign="left",
     )
     # PLOT
@@ -1533,14 +1524,14 @@ def generate_peak_report(fsa):
     peaks_header = header(
         text="## Plot of Peaks",
         bg_color="#04c273",
-        height=SUBTITLE_HEIGHT,
+        height=80,
         textalign="left",
     )
 
     # PLOT
     logger.info("Plotting all found peaks")
     peaks_plot = plot_all_found_peaks(fsa)
-    peaks_pane = pn.pane.Matplotlib(peaks_plot, width=CHART_WIDTH, height=CHART_HEIGHT, name="Peaks")
+    peaks_pane = pn.pane.Matplotlib(peaks_plot, width=800, height=500, name="Peaks")
 
     # Section
     peaks_tab = pn.Tabs(
@@ -1552,7 +1543,7 @@ def generate_peak_report(fsa):
     ladder_header = header(
         text="## Information about the ladder",
         bg_color="#04c273",
-        height=SUBTITLE_HEIGHT,
+        height=80,
         textalign="left",
     )
     # Ladder peak plot
@@ -1577,7 +1568,7 @@ def generate_peak_report(fsa):
 
     ### ----- Peaks dataframe ----- ###
     dataframe_header = header(
-        text="## Peaks Table", bg_color="#04c273", height=SUBTITLE_HEIGHT, textalign="left"
+        text="## Peaks Table", bg_color="#04c273", height=80, textalign="left"
     )
     # Create dataframe
     df = fsa.identified_sample_data_peaks.assign(file_name=fsa.file_name)[
@@ -1612,7 +1603,9 @@ def generate_peak_report(fsa):
     )
     logger.info("Creating report")
     report = pn.Column(
-        all_tabs,
+        head,
+        pn.layout.Divider(),
+        all_tabs
     )
 
     return report
@@ -1627,7 +1620,7 @@ def generate_area_report(fsa):
     channel_header = header(
         text="## Plot of channels",
         bg_color="#04c273",
-        height=SUBTITLE_HEIGHT,
+        height=80,
         textalign="left",
     )
     # PLOT
@@ -1642,7 +1635,7 @@ def generate_area_report(fsa):
     peaks_header = header(
         text="## Plot of Peaks",
         bg_color="#04c273",
-        height=SUBTITLE_HEIGHT,
+        height=80,
         textalign="left",
     )
 
@@ -1660,7 +1653,7 @@ def generate_area_report(fsa):
     ladder_header = header(
         text="## Information about the ladder",
         bg_color="#04c273",
-        height=SUBTITLE_HEIGHT,
+        height=80,
         textalign="left",
     )
     # Ladder peak plot
@@ -1685,7 +1678,7 @@ def generate_area_report(fsa):
 
     ### ----- Areas Information ----- ###
     areas_header = header(
-        text="## Peak Areas", bg_color="#04c273", height=SUBTITLE_HEIGHT, textalign="left"
+        text="## Peak Areas", bg_color="#04c273", height=80, textalign="left"
     )
     areas_tab = pn.Tabs()
     area_plots_list = plot_areas(fsa)
@@ -1699,7 +1692,7 @@ def generate_area_report(fsa):
 
     ### ----- Peaks DataFrame ----- ###
     dataframe_header = header(
-        text="## Peaks Table", bg_color="#04c273", height=SUBTITLE_HEIGHT, textalign="left"
+        text="## Peaks Table", bg_color="#04c273", height=80, textalign="left"
     )
 
     df = fsa.identified_sample_data_peaks[
@@ -1734,6 +1727,8 @@ def generate_area_report(fsa):
         tabs_location="left",
     )
     report = pn.Column(
+        head,
+        pn.layout.Divider(),
         all_tabs
     )
 
@@ -1748,7 +1743,7 @@ def generate_no_peaks_report(fsa):
     channel_header = header(
         text="## Plot of channels",
         bg_color="#04c273",
-        height=SUBTITLE_HEIGHT,
+        height=80,
         textalign="left",
     )
     # PLOT
@@ -1770,6 +1765,8 @@ def generate_no_peaks_report(fsa):
         tabs_location="left",
     )
     report = pn.Column(
+        head,
+        pn.layout.Divider(),
         all_tabs
     )
 
@@ -1865,7 +1862,6 @@ def main(
     search_peaks_start,
     peak_area_model,
 ):
-    report = None
     today = datetime.today().strftime("%Y-%m-%d %H:%M:%S")
     FAILED_FILES = []
     PEAK_TABLES = []
@@ -2146,9 +2142,8 @@ def main(
     )
 
     print_green("Fraggler done!")
-    return report if report else no_peaks_report
 
 
 if __name__ == "__main__":
     cli()
-    # sys.exit(0)
+    sys.exit(0)

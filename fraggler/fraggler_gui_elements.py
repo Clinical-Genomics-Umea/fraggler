@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'MainWindowAYovIj.ui'
+## Form generated from reading UI file 'MainWindowkVvAYj.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
@@ -27,7 +27,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1187, 825)
+        MainWindow.resize(1187, 832)
         font = QFont()
         font.setPointSize(15)
         MainWindow.setFont(font)
@@ -36,18 +36,16 @@ class Ui_MainWindow(object):
         self.action_loadFSAFile = QAction(MainWindow)
         self.action_loadFSAFile.setObjectName(u"action_loadFSAFile")
         self.action_loadFSAFile.setCheckable(False)
-        self.action_themeSelector = QAction(MainWindow)
-        self.action_themeSelector.setObjectName(u"action_themeSelector")
-        self.action_HDLCD = QAction(MainWindow)
-        self.action_HDLCD.setObjectName(u"action_HDLCD")
-        self.actionStop_HDLCD = QAction(MainWindow)
-        self.actionStop_HDLCD.setObjectName(u"actionStop_HDLCD")
         self.action_about = QAction(MainWindow)
         self.action_about.setObjectName(u"action_about")
         self.actionToggle_Dark_Light = QAction(MainWindow)
         self.actionToggle_Dark_Light.setObjectName(u"actionToggle_Dark_Light")
         self.actionLoad_FSA_Directory = QAction(MainWindow)
         self.actionLoad_FSA_Directory.setObjectName(u"actionLoad_FSA_Directory")
+        self.actionZoom_Out = QAction(MainWindow)
+        self.actionZoom_Out.setObjectName(u"actionZoom_Out")
+        self.actionZoom_In = QAction(MainWindow)
+        self.actionZoom_In.setObjectName(u"actionZoom_In")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setAcceptDrops(False)
@@ -118,7 +116,7 @@ class Ui_MainWindow(object):
         self.selectDirectoryButton = QPushButton(self.frame_3)
         self.selectDirectoryButton.setObjectName(u"selectDirectoryButton")
         self.selectDirectoryButton.setFont(font3)
-        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.FolderOpen))
+        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.DocumentOpen))
         self.selectDirectoryButton.setIcon(icon1)
 
         self.horizontalLayout_3.addWidget(self.selectDirectoryButton)
@@ -356,7 +354,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1187, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1187, 24))
         font5 = QFont()
         font5.setPointSize(9)
         self.menubar.setFont(font5)
@@ -375,8 +373,10 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.action_loadFSAFile)
         self.menuFile.addAction(self.actionLoad_FSA_Directory)
         self.menuHelp.addAction(self.actionToggle_Dark_Light)
-        self.menuHelp.addSeparator()
         self.menuHelp.addAction(self.action_about)
+        self.menuHelp.addAction(self.actionZoom_Out)
+        self.menuHelp.addAction(self.actionZoom_In)
+        self.menuHelp.addSeparator()
 
         self.retranslateUi(MainWindow)
 
@@ -389,12 +389,26 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(shortcut)
         self.action_loadFSAFile.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+O", None))
 #endif // QT_CONFIG(shortcut)
-        self.action_themeSelector.setText(QCoreApplication.translate("MainWindow", u"Theme Selector", None))
-        self.action_HDLCD.setText(QCoreApplication.translate("MainWindow", u"Restart Local HDLCD service", None))
-        self.actionStop_HDLCD.setText(QCoreApplication.translate("MainWindow", u"Stop HDLCD", None))
         self.action_about.setText(QCoreApplication.translate("MainWindow", u"About", None))
         self.actionToggle_Dark_Light.setText(QCoreApplication.translate("MainWindow", u"Toggle Dark/Light Mode", None))
         self.actionLoad_FSA_Directory.setText(QCoreApplication.translate("MainWindow", u"Load FSA Directory", None))
+#if QT_CONFIG(shortcut)
+        self.actionLoad_FSA_Directory.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+D", None))
+#endif // QT_CONFIG(shortcut)
+        self.actionZoom_Out.setText(QCoreApplication.translate("MainWindow", u"Zoom Out", None))
+#if QT_CONFIG(tooltip)
+        self.actionZoom_Out.setToolTip(QCoreApplication.translate("MainWindow", u"Zoom Out on Fraggler Report", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(shortcut)
+        self.actionZoom_Out.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+-", None))
+#endif // QT_CONFIG(shortcut)
+        self.actionZoom_In.setText(QCoreApplication.translate("MainWindow", u"Zoom In", None))
+#if QT_CONFIG(tooltip)
+        self.actionZoom_In.setToolTip(QCoreApplication.translate("MainWindow", u"Zoom In on Fraggler Report", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(shortcut)
+        self.actionZoom_In.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+=", None))
+#endif // QT_CONFIG(shortcut)
         self.label_description.setText(QCoreApplication.translate("MainWindow", u"Fraggler GUI", None))
         self.label_icon.setText(QCoreApplication.translate("MainWindow", u"[ICON]", None))
 #if QT_CONFIG(tooltip)

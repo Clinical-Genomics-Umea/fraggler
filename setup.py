@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setuptools.setup(
     name="fraggler",
-    version="3.0.3",
+    version="3.0.4",
     description="Fragment Analysis package in python!",
     url="https://github.com/willros/fraggler",
     author="William Rosenbaum and Pär Larsson - GUI by Thad Sandidge",
@@ -30,7 +30,6 @@ setuptools.setup(
         "setuptools",
         "pandas-flavor==0.6.0",
         "PySide6==6.7.2"
-
     ],
     entry_points={"console_scripts": ["fraggler=fraggler.fraggler:cli", "fraggler-gui=fraggler.fraggler_gui:run"]},
 )

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1187</width>
-    <height>825</height>
+    <height>832</height>
    </rect>
   </property>
   <property name="font">
@@ -155,7 +155,7 @@
                 <string>Select Directory</string>
                </property>
                <property name="icon">
-                <iconset theme="QIcon::ThemeIcon::FolderOpen"/>
+                <iconset theme="QIcon::ThemeIcon::DocumentOpen"/>
                </property>
               </widget>
              </item>
@@ -600,7 +600,7 @@
      <x>0</x>
      <y>0</y>
      <width>1187</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <property name="font">
@@ -620,8 +620,10 @@
      <string>Help</string>
     </property>
     <addaction name="actionToggle_Dark_Light"/>
-    <addaction name="separator"/>
     <addaction name="action_about"/>
+    <addaction name="actionZoom_Out"/>
+    <addaction name="actionZoom_In"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
@@ -644,21 +646,6 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="action_themeSelector">
-   <property name="text">
-    <string>Theme Selector</string>
-   </property>
-  </action>
-  <action name="action_HDLCD">
-   <property name="text">
-    <string>Restart Local HDLCD service</string>
-   </property>
-  </action>
-  <action name="actionStop_HDLCD">
-   <property name="text">
-    <string>Stop HDLCD</string>
-   </property>
-  </action>
   <action name="action_about">
    <property name="text">
     <string>About</string>
@@ -672,6 +659,31 @@
   <action name="actionLoad_FSA_Directory">
    <property name="text">
     <string>Load FSA Directory</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionZoom_Out">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom Out on Fraggler Report</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="actionZoom_In">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom In on Fraggler Report</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+=</string>
    </property>
   </action>
  </widget>
