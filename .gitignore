@@ -9,7 +9,7 @@ __pycache__/
 # Fraggler App
 fraggler_app.py
 docker/
-
+metadata.yml
 # Distribution / packaging
 .Python
 build/

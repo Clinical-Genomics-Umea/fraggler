@@ -26,11 +26,13 @@ if not hasattr(logging, 'SUCCESS'):
 
 # Initialize the logger configuration if it has not already been set up
 if not hasattr(logging, '_logger_configured'):
+    # Remove all existing handlers
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
     # Configure the basic logging setup
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%H:%M:%S'
+        format='%(name)s - %(levelname)s - %(message)s',
     )
     # Flag to indicate that the logger has been configured
     logging._logger_configured = True

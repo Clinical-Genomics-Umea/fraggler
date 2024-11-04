@@ -272,7 +272,7 @@ class MainWindow(QMainWindow):
 
     ############### LOGGING ###############
 
-    def log(self, msg, level="none", asctime="none", class_name="none"):
+    def log(self, msg, level="none", class_name="none"):
         """Add a log message to the status bar and the UI list widget.
 
         Args:
@@ -282,7 +282,7 @@ class MainWindow(QMainWindow):
             class_name (str): Class or context of the log message.
         """
         self.statusBar().showMessage(msg)
-        msg = f"{asctime} \t {class_name} \t {msg}"
+        msg = f"{level} \t {class_name} \t {msg}"
         item = QListWidgetItem(msg)
         self.ui.listWidget.insertItem(0, item)
         
@@ -542,9 +542,8 @@ class MainWindowLoggingHandler(logging.Handler):
         """
         message = self.format(record)
         levelname = record.levelname
-        asctime = record.asctime
         class_name = record.name
-        self.log_method(message, levelname, asctime, class_name)
+        self.log_method(message, levelname, class_name)
 
 
 def run():

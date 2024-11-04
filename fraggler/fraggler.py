@@ -1858,7 +1858,6 @@ def main(
     search_peaks_start,
     peak_area_model,
 ):
-    today = datetime.today().strftime("%Y-%m-%d %H:%M:%S")
     FAILED_FILES = []
     PEAK_TABLES = []
     start_time = datetime.now()
