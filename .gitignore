@@ -8,6 +8,7 @@ __pycache__/
 
 # Fraggler App
 fraggler_app.py
+docker/
 
 # Distribution / packaging
 .Python
