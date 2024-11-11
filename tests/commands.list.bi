@@ -696,9 +696,15 @@ python3 test_area.py
 :b shell 75
 fraggler -t area -f ../demo/multiplex.fsa -l LIZ -o rere_out_area -sc DATA1
 :i returncode 0
-:b stdout 689
+:b stdout 146
 [INFO]: Starting fraggler, importing libraries...
-[INFO]: fraggler 
+[INFO]: Creating area report...
+[INFO]: Fraggler done for multiplex.fsa
+
+[INFO]: Fraggler done!
+
+:b stderr 666
+fraggler.fraggler - INFO - fraggler 
 type: area
 fsa: ../demo/multiplex.fsa
 output: rere_out_area
@@ -713,25 +719,23 @@ distance_between_assays: 15
 search_peaks_start: 115
 peak_area_model: gauss
 
-[INFO]: Running fraggler area!
-[INFO]:    Running fraggler on ../demo/multiplex.fsa
-[INFO]: Using size standard channel: DATA205
-[INFO]: Finding peaks agnostic
-[SUMMARIZE]: Found 4 assays
-[SUMMARIZE]: Found 11 peaks
-[INFO]: Creating area report...
-[INFO]: Fraggler done for multiplex.fsa
-
-[INFO]: Fraggler done!
-
-:b stderr 0
+fraggler.fraggler - INFO - Running fraggler area!
+fraggler.fraggler - INFO -    Running fraggler on ../demo/multiplex.fsa
+fraggler.fraggler - INFO - Using size standard channel: DATA205
+fraggler.fraggler - INFO - Finding peaks agnostic
+fraggler.fraggler - INFO - Found 4 assays
+fraggler.fraggler - INFO - Found 11 peaks
 
 :b shell 75
 fraggler -t peak -f ../demo/multiplex.fsa -l LIZ -o rere_out_peak -sc DATA1
 :i returncode 0
-:b stdout 689
+:b stdout 74
 [INFO]: Starting fraggler, importing libraries...
-[INFO]: fraggler 
+
+[INFO]: Fraggler done!
+
+:b stderr 871
+fraggler.fraggler - INFO - fraggler 
 type: peak
 fsa: ../demo/multiplex.fsa
 output: rere_out_peak
@@ -746,16 +750,14 @@ distance_between_assays: 15
 search_peaks_start: 115
 peak_area_model: gauss
 
-[INFO]: Running fraggler peak!
-[INFO]:    Running fraggler on ../demo/multiplex.fsa
-[INFO]: Using size standard channel: DATA205
-[INFO]: Finding peaks agnostic
-[SUMMARIZE]: Found 4 assays
-[SUMMARIZE]: Found 11 peaks
-[INFO]: Creating peak report...
-[INFO]: Fraggler done for multiplex.fsa
-
-[INFO]: Fraggler done!
-
-:b stderr 0
+fraggler.fraggler - INFO - Running fraggler peak!
+fraggler.fraggler - INFO -    Running fraggler on ../demo/multiplex.fsa
+fraggler.fraggler - INFO - Using size standard channel: DATA205
+fraggler.fraggler - INFO - Finding peaks agnostic
+fraggler.fraggler - INFO - Found 4 assays
+fraggler.fraggler - INFO - Found 11 peaks
+fraggler.fraggler - INFO - Creating peak report...
+fraggler.fraggler - INFO - Plotting all found peaks
+fraggler.fraggler - INFO - Creating report
+fraggler.fraggler - INFO - Fraggler done for multiplex.fsa
 

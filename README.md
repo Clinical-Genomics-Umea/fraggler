@@ -6,10 +6,11 @@
 ![logo](examples/logo.png)
 
 ## Description
-Fraggler is for fragment analysis in Python!
-Fraggler is a Python package that provides functionality for analyzing and generating reports for fsa files. It offers both a Python API and a command-line tool.
 
-----------------
+Fraggler is for fragment analysis in Python!
+Fraggler is a Python package that provides functionality for analyzing and generating reports for fsa files. It offers a Python API, command-line tool, and GUI interface.
+
+---
 
 ## Install
 
@@ -18,7 +19,9 @@ pip install fraggler
 ```
 
 ### Dependencies
+
 Fraggler depends on:
+
 - pandas
 - scikit-learn
 - lmfit
@@ -26,15 +29,16 @@ Fraggler depends on:
 - biopython
 - panel
 - altair
+- PySide6
 
 ## Python API
 
 To get an overview how the library can be used in a python environment, please look at the [tutorial.ipynb](demo/tutorial.ipynb).
 
-
 ## CLI
 
 #### Usage
+
 To generate peak area reports and a peak table for all input files, use the `fraggler -t area` or `fraggler -t peak` command followed by the required arguments and any optional flags.
 
 ```bash
@@ -53,7 +57,7 @@ options:
   -f FSA, --fsa FSA     fsa file to analyze
   -o OUTPUT, --output OUTPUT
                         Output folder
-  -l {LIZ,ROX,ORANGE,ROX500}, --ladder {LIZ,ROX,ORANGE,ROX500}
+  -l {LIZ,ROX,ORANGE,ROX500}, --ladder {LIZ,ROX,ORANGE,ROX500,LIZ_500}
                         Which ladder to use
   -sc SAMPLE_CHANNEL, --sample_channel SAMPLE_CHANNEL
                         Which sample channel to use. E.g: 'DATA1', 'DATA2'...
@@ -76,19 +80,22 @@ options:
 ```
 
 ##### Example of CLI command:
+
 ```bash
 fraggler -t area -f demo/ -o testing_fraggler -l LIZ -sc DATA1
 ```
 
 #### Peak finding
+
 - If not specified, fraggler finds peaks agnostic in the `fsa file`. To specifiy custom assays with certain peaks and intervals, the user can add a .csv file to the `--custom_peaks` argument. The csv file **MUST** have the following shape:
 
 | name | start | stop | amount | min_ratio | which | peak_distance |
-|------|-------|------|--------|-----------|-------|---------------|
+| ---- | ----- | ---- | ------ | --------- | ----- | ------------- |
 | prt1 | 140   | 150  | 2      | 0.2       | FIRST | 5             |
 
 ##### Example how how a file could look:
-```txt 
+
+```txt
 name,start,stop,amount,min_ratio,which,peak_distance
 prt1,135,155,2,0.2,FIRST,
 prt3,190,205,,0.2,FIRST,
@@ -99,20 +106,41 @@ prt4,262,290,5,,,
 - `name`: Name of the assay
 - `start`: Start of the assay in basepairs
 - `stop`: Stop of the assay in basepairs
-- `amount`: Optional. Amount of peaks in assay. If left empty every peak in the interval is included. 
-- `min_ratio`: Optional. Only peaks with the a ratio of the `min_ratio` of the highest peak is included, *e.g.* if `min_ratio == .02`, only peaks with a height of 20 is included, if the highest peak is 100 units
-- `which`: *LARGEST | FIRST*. Can be left empty. Which peak should be included if there are more peaks than the `amount`. if *FIRST* is set, then the two first peaks are chosen. If *LARGEST* are set, then the two largests peaks in the area are chosen. Defaults to *LARGEST*
-- `peak_distance`: Optional. Distance between peaks must be ***under*** this value.
+- `amount`: Optional. Amount of peaks in assay. If left empty every peak in the interval is included.
+- `min_ratio`: Optional. Only peaks with the a ratio of the `min_ratio` of the highest peak is included, _e.g._ if `min_ratio == .02`, only peaks with a height of 20 is included, if the highest peak is 100 units
+- `which`: _LARGEST | FIRST_. Can be left empty. Which peak should be included if there are more peaks than the `amount`. if _FIRST_ is set, then the two first peaks are chosen. If _LARGEST_ are set, then the two largests peaks in the area are chosen. Defaults to _LARGEST_
+- `peak_distance`: Optional. Distance between peaks must be **_under_** this value.
 
+## GUI Integration
+
+The GUI for Fraggler offers an accessible way to analyze FSA files without needing to interact with the command line directly. It allows users to upload files, set parameters, and generate analysis reports visually. The GUI is built using PyQt and offers a sidebar navigation for file browsing, options for report generation, and an output view for results.
+
+### Running the GUI
+
+To run the Fraggler GUI after installing the package, use the following command:
+
+```bash
+fraggler-gui
+```
+
+### GUI Features
+
+- **File Explorer**: Navigate and select FSA files for analysis.
+- **Parameter Setup**: Choose analysis type, set peak detection parameters, and specify custom peaks.
+- **Report Generation**: Display and export detailed reports in HTML format, including peak area and peak tables.
 
 #### Documentation
+
 Click [here](https://clinical-genomics-umea.github.io/fraggler/fraggler/fraggler.html) to get full documentation of API.
 
 ## Output
+
 One example of the report generated from `fraggler area` can be seen here: [Example report](examples/multiplex_fraggler_area.html)
 
 ## Citation
+
 If you use `fraggler`, please cite the [paper](https://joss.theoj.org/papers/10.21105/joss.06869)!
 
 ## Contributions
+
 Please check out [How to contribute](CONTRIBUTION.md)
